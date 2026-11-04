@@ -542,3 +542,26 @@ p, h1, h2 { margin: 0; }
   .hr-card { padding: 10px 12px 12px; gap: 8px; }
   .hr-ava { width: 34px; height: 34px; } .hr-ava img { width: 30px; height: 30px; }
 }
+
+/* ---------- 券上的渠道按钮 ---------- */
+.ticket-go {
+  grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  padding: 12px; border-top: 2px dashed var(--paper);
+}
+.ch-btn {
+  height: 48px; border-radius: 999px; background: var(--ink); color: #fff;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-size: 15px; font-weight: 700; transition: transform .15s var(--ease-out);
+}
+.ch-btn:active { transform: scale(.97); }
+.ch-ico { width: 26px; height: 26px; flex: 0 0 auto; border-radius: 7px; }
+@media (max-height: 700px) { .ch-btn { height: 44px; font-size: 14px; } .ch-ico { width: 22px; height: 22px; } }
+/* 天猫：官方「TMALL」字标（Wikimedia Commons，公共领域），白字放在天猫红底上 */
+.ch-mark.tmall { height: 26px; padding: 0 7px; border-radius: 7px; background: #FF0036; display: inline-flex; align-items: center; flex: 0 0 auto; }
+.ch-mark.tmall svg { height: 11px; width: auto; display: block; }
+@media (max-height: 700px) { .ch-mark.tmall { height: 22px; } .ch-mark.tmall svg { height: 9px; } }
+/* 券的两个半圆缺口挪到虚线两端，像撕券口 */
+.ticket::before, .ticket::after { left: auto; top: auto; bottom: 64px; }
+.ticket::before { left: -9px; }
+.ticket::after { right: -9px; }
+@media (max-height: 700px) { .ticket::before, .ticket::after { bottom: 60px; } }

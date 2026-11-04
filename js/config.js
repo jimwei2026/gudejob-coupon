@@ -9,20 +9,20 @@ GJ.config = {
   // 领券链接（占位：先用渠道首页）
   links: {
     douyin: 'https://www.douyin.com/',
-    taobao: 'https://www.taobao.com/',
+    tmall: 'https://www.tmall.com/',
   },
 
   // 券面信息（占位）
   coupon: {
     name: '接 TA 回家券',
-    amount: 20,                         // 立减金额，单位元
+    amount: 5,                          // 立减金额，单位元
     threshold: '满 69 可用',
     validity: '有效期至 2026年11月30日',
     store: 'Sowii 潮玩旗舰店',
   },
 
   // 单盒原价（占位）。必须是真实售价；设为 null 就不显示「券后价」那一行
-  price: 69,
+  price: 99,
 
   // 用户在券页面没点渠道就按返回时，提醒一次。App 不支持拦截返回时自动失效
   leaveReminder: true,

@@ -1,12 +1,12 @@
 /*
- * 页面流程：选卡 → 刮卡 → 揭晓并播放 PV → 领券 → 跳转抖音 / 淘宝。
+ * 页面流程：选卡 → 刮卡 → 揭晓并播放 PV → 领券 → 跳转抖音 / 天猫。
  * 旁支：图鉴、再刮一张、领券规则、离开提醒（只出现一次）。
  */
 (function () {
   var C = GJ.config;
   var CHAR = {};
   C.characters.forEach(function (c) { CHAR[c.id] = c; });
-  var CHANNEL = { douyin: '抖音', taobao: '淘宝' };
+  var CHANNEL = { douyin: '抖音', tmall: '天猫' };
   var CARD_RATIO = 2000 / 1432;
 
   var $ = function (id) { return document.getElementById(id); };
@@ -128,7 +128,7 @@
     var cp = C.coupon, list = $('rules');
     var items = [
       cp.name + '：立减 ¥' + cp.amount + '，' + cp.threshold + '，' + cp.validity + '。',
-      '适用店铺：' + cp.store + '（抖音、淘宝）。',
+      '适用店铺：' + cp.store + '（抖音、天猫）。',
       '7 只秃秃机会均等，每一轮都会遇到一次；不管刮到谁，领到的都是同一张券，多刮不叠加。',
       '刮卡结果只是页面小游戏，和实体盲盒的款式概率无关；实体盲盒概率以销售页公示为准。',
       '页面有音效和视频声音，可以点右上角静音。',
@@ -547,7 +547,7 @@
     $('leave-stay').addEventListener('click', function () { closeSheets(); });
     $('leave-go').addEventListener('click', function () { closeSheets(true); history.back(); });
 
-    // 从抖音 / 淘宝返回时，页面可能从缓存恢复，收起跳转层
+    // 从抖音 / 天猫返回时，页面可能从缓存恢复，收起跳转层
     window.addEventListener('pageshow', function (e) { if (e.persisted) { clearJump(); $('jump').hidden = true; } });
 
     // 防止页面被拖动、双指缩放、双击放大
