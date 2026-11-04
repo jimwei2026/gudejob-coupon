@@ -27,7 +27,7 @@ GJ.config = {
   // 用户在券页面没点渠道就按返回时，提醒一次。App 不支持拦截返回时自动失效
   leaveReminder: true,
 
-  // 7 只秃秃。顺序就是选卡转轮上的顺序；台词和运势是初稿
+  // 7 只秃秃。fortune 是揭晓后标题下面的「今日运势」；line 是角色台词，页面暂时没用到，先留着
   characters: [
     { id: 'inventor', name: '潮玩发明家', en: 'Toy Tinkerer',
       line: '用瓶盖做了个新玩具，第一个给你玩。', fortune: '适合把旧东西改成新玩具' },

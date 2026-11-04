@@ -277,6 +277,7 @@
     card.classList.remove('is-revealed', 'is-ready', 'is-holo');
     card.removeAttribute('role'); card.removeAttribute('tabindex'); card.removeAttribute('aria-label');
     $('scratch-title').textContent = '用手指刮开激活卡';
+    $('scratch-sub').classList.remove('is-fortune');
     $('scratch-sub').textContent = '刮开 70% 就会自动翻开';
     $('scratch-meter').style.transform = 'scaleX(0)';
     $('scratch-foot').hidden = false;
@@ -330,11 +331,8 @@
       GJ.audio.play('sparkle', { gain: 0.8 });
       GJ.audio.buzz(30, 0);
       $('scratch-title').textContent = '是' + ch.name + '！';
-      $('scratch-sub').textContent = 'TA 认你做主人了';
     }
-    $('bubble-name').textContent = '嘟嘟！我是' + ch.name;
-    $('bubble-line').textContent = ch.line;
-    $('reveal-fortune').textContent = ch.fortune;
+    showFortune(ch);
     $('scratch-foot').hidden = true;
     $('reveal-foot').hidden = false;
     // 停在这里看卡片和运势；点卡片才播 PV
@@ -344,13 +342,24 @@
     requestAnimationFrame(sizeScratch);
   }
 
+  // 揭晓后标题下面那一行换成今日运势
+  function showFortune(ch) {
+    var sub = $('scratch-sub');
+    sub.textContent = '';
+    var tag = document.createElement('span');
+    tag.textContent = '今日运势';
+    var text = document.createElement('b');
+    text.textContent = ch.fortune;
+    sub.appendChild(tag); sub.appendChild(text);
+    sub.classList.add('is-fortune');
+  }
+
   // 隐藏款：一道闪光、满屏星星炸开、卡面炫彩流光、周围一直飘闪粉
   function luckReveal() {
     var screen = $('s-scratch'), card = $('scratch-card');
     screen.classList.add('is-luck', 'is-flash');
     card.classList.add('is-holo');
     $('scratch-title').textContent = '你刮到了隐藏款！';
-    $('scratch-sub').textContent = '梦境修复师很少出门，你是幸运儿';
     GJ.audio.thump({ freq: 70, gain: 0.8, dur: 0.25 });
     GJ.audio.play('shimmer', { gain: 0.9 });
     GJ.audio.play('sparkle', { gain: 1 });
