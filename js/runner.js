@@ -4,7 +4,6 @@
  *  - 每经过一张卡踩一步（和「咔」声同步），跑快了脚下起灰
  *  - 停下来：转回正面，累得一屁股坐下，冒一滴汗，「呼～」
  *  - 选中卡片：挥手跳一下，「嘟！」
- * 脚下的尺子跟着卡片一起走，一张卡 = 1cm（秃秃只有 4cm 高）。
  */
 (function () {
   var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;

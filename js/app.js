@@ -154,7 +154,7 @@
     });
     state.cards = cards;
     sizeWheel();
-    state.runner = new GJ.Runner($('tutu'), $('ruler'), $('world'));
+    state.runner = new GJ.Runner($('tutu'), null, null);
     state.wheel = new GJ.Wheel($('wheel'), {
       count: cards.length, cards: cards,
       onMove: function () { $('btn-pick').disabled = true; },
@@ -183,17 +183,17 @@
 
   // 秃秃 HR 的话和按钮，跟着停下的那张卡变
   function updatePickButton(i) {
-    var b = $('btn-pick'), msg = $('hr-msg'), no = 'No.0' + (i + 1);
+    var b = $('btn-pick'), msg = $('hr-msg');
     b.disabled = false;
     if (!GJ.store.left()) {
       b.textContent = '洗牌，再招一轮';
       msg.textContent = '7 个岗位都招满啦！洗牌再招一轮？';
     } else if (GJ.store.isOpened(i)) {
       b.textContent = '看 TA 的角色 PV';
-      msg.textContent = no + ' 已经上岗啦，看看 TA 在干嘛？';
+      msg.textContent = '已经上岗啦，看看 TA 在干嘛？';
     } else {
       b.textContent = '立即沟通';
-      msg.textContent = '嘟！' + no + ' 还没人认领，要聊聊吗？';
+      msg.textContent = '还没有被认领，要聊聊么？';
     }
   }
 
@@ -201,12 +201,10 @@
     var r = $('wheel').getBoundingClientRect();
     if (!r.width) return;
     // 上方留给尺子和秃秃
-    var w = Math.min(r.width * 0.54, 240, (r.height - 104) / CARD_RATIO);
+    var w = Math.min(r.width * 0.54, 240, (r.height - 92) / CARD_RATIO);
     $('wheel').style.setProperty('--wcard-w', Math.max(110, Math.floor(w)) + 'px');
     if (state.wheel) {
       state.wheel.measure(); state.wheel.render();
-      // 尺子上一大格 = 一张卡的间距
-      $('wheel').style.setProperty('--cm', state.wheel.spacing.toFixed(1) + 'px');
       state.runner.update(state.wheel.pos, 0, state.wheel.spacing);
     }
   }

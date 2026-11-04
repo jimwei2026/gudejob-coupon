@@ -13,7 +13,7 @@
 <div class="app" id="app">
 
   <header class="topbar">
-    <div class="brand">Sowii<span>×</span>Tutu World</div>
+    <div class="brand"><p class="series">菇的JOB!<small>系列</small></p><span class="series-tag">数字生命盲盒</span></div>
     <div class="topbar-actions">
       <button class="pill" id="btn-gallery" type="button" aria-label="打开图鉴">图鉴 <b id="gallery-count">0/7</b></button>
       <button class="icon-btn" id="btn-mute" type="button" aria-label="静音" aria-pressed="false">
@@ -28,13 +28,9 @@
     <!-- S1 选卡 -->
     <section class="screen" id="s-pick" data-screen="pick" aria-label="挑一张激活卡">
       <!-- 招聘 App 的样子：页头 → 转轮 → 秃秃 HR 对话卡 -->
-      <div class="app-head">
-        <h1 class="series">菇的JOB!<small>系列</small></h1>
-        <p class="series-tag">数字生命盲盒</p>
-      </div>
       <div class="wheel" id="wheel" tabindex="0" role="listbox" aria-label="激活卡转轮，左右拨动选择">
         <div class="runner" aria-hidden="true">
-          <div class="ruler" id="ruler"><span>cm</span></div>
+          <i class="tutu-ground"></i>
           <div class="tutu" id="tutu">
             <div class="tutu-body">
               <img class="t-front" src="assets/tutu/front.png" alt="" draggable="false">
@@ -59,7 +55,7 @@
           <div class="hr-who"><b>秃秃 HR</b><span><i></i>刚刚活跃</span></div>
           <span class="hr-tag" id="hr-tag"></span>
         </div>
-        <p class="hr-msg" id="hr-msg" aria-live="polite">嘟！左右拨一拨，挑一张看看谁来上岗</p>
+        <p class="hr-msg" id="hr-msg" aria-live="polite">左右拨一拨，挑一张看看谁来上岗</p>
         <button class="btn" id="btn-pick" type="button" disabled>立即沟通</button>
       </div>
       <button class="link rules-link" type="button" data-open="rules">领券规则</button>
