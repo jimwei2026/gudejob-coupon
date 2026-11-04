@@ -157,13 +157,12 @@
     state.runner = new GJ.Runner($('tutu'), $('ruler'), $('world'));
     state.wheel = new GJ.Wheel($('wheel'), {
       count: cards.length, cards: cards,
-      onMove: function (i) { $('btn-pick').disabled = true; setNo(i); },
-      onSettle: function (i) { setNo(i); updatePickButton(i); state.runner.settle(); },
+      onMove: function () { $('btn-pick').disabled = true; },
+      onSettle: function (i) { updatePickButton(i); state.runner.settle(); },
       onTick: function (dir, speed) { state.runner.step(speed); },
       onFrame: function (pos, vis) { state.runner.update(pos, vis, state.wheel.spacing); },
       onPick: pick,
     });
-    $('wheel').addEventListener('pointerdown', function () { $('wheel-hint').classList.add('is-off'); }, { once: true });
     $('wheel-prev').addEventListener('click', function () { state.wheel.step(-1); });
     $('wheel-next').addEventListener('click', function () { state.wheel.step(1); });
     $('btn-pick').addEventListener('click', function () { if (state.wheel.settled) pick(state.wheel.index()); });
@@ -179,17 +178,23 @@
       el.setAttribute('aria-label', open ? '第 ' + (i + 1) + ' 张，已刮开：' + ch.name : '第 ' + (i + 1) + ' 张激活卡，还没刮');
     });
     var left = GJ.store.left();
-    $('wheel-left').textContent = left ? '这一副还剩 ' + left + ' 张没刮' : '7 张都刮开啦，洗牌再来一轮';
+    $('hr-tag').textContent = left ? '还剩 ' + left + ' 张' : '已招满';
   }
 
-  function setNo(i) { $('wheel-no').textContent = 'No.0' + (i + 1); }
-
+  // 秃秃 HR 的话和按钮，跟着停下的那张卡变
   function updatePickButton(i) {
-    var b = $('btn-pick');
+    var b = $('btn-pick'), msg = $('hr-msg'), no = 'No.0' + (i + 1);
     b.disabled = false;
-    if (!GJ.store.left()) b.textContent = '洗牌，再来一轮';
-    else if (GJ.store.isOpened(i)) b.textContent = '刮过了 · 看 TA 的角色 PV';
-    else b.textContent = '就选这张';
+    if (!GJ.store.left()) {
+      b.textContent = '洗牌，再招一轮';
+      msg.textContent = '7 个岗位都招满啦！洗牌再招一轮？';
+    } else if (GJ.store.isOpened(i)) {
+      b.textContent = '看 TA 的角色 PV';
+      msg.textContent = no + ' 已经上岗啦，看看 TA 在干嘛？';
+    } else {
+      b.textContent = '立即沟通';
+      msg.textContent = '嘟！' + no + ' 还没人认领，要聊聊吗？';
+    }
   }
 
   function sizeWheel() {
@@ -253,6 +258,7 @@
     GJ.audio.play('slide', { gain: 0.9 });
     state.runner.talk('洗牌咯！');
     GJ.store.reshuffle();
+    updateCount();
     // 卡片转到侧面（看不见牌面）时换成背面
     setTimeout(renderDeck, 250);
     setTimeout(function () {

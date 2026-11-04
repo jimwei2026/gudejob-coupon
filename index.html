@@ -27,26 +27,13 @@
 
     <!-- S1 选卡 -->
     <section class="screen" id="s-pick" data-screen="pick" aria-label="挑一张激活卡">
-      <!-- 背景：招聘栏。软木板上钉着 7 个岗位的招聘便签（隐藏款那张写着「？？？」），图钉用品牌红 -->
-      <div class="world" aria-hidden="true">
-        <div class="world-in" id="world">
-          <div class="note n1" style="--paper:#FFF4C2"><b>招聘</b><strong>潮玩发明家</strong><span>会用瓶盖优先</span></div>
-          <div class="note n2" style="--paper:#DDEFFF"><b>急招</b><strong>海城浪人</strong><span>水洼也算海</span></div>
-          <div class="note n5" style="--paper:#EDE3FF"><b>？？？</b><strong>梦境修复师</strong><span>夜班 · 保密</span></div>
-          <div class="note n6" style="--paper:#FFE3E7"><b>急招</b><strong>邪修老吃家</strong><span>试吃不限量</span></div>
-          <div class="note n7" style="--paper:#FFF9EC"><b>招聘</b><strong>局部天气顾问</strong><span>负责头顶一小块</span></div>
-        </div>
-      </div>
-      <div class="head">
-        <p class="series-tag">数字生命盲盒</p>
+      <!-- 招聘 App 的样子：页头 → 转轮 → 秃秃 HR 对话卡 -->
+      <div class="app-head">
         <h1 class="series">菇的JOB!<small>系列</small></h1>
-        <p class="sub">7 只秃秃上岗啦，拨一拨，挑一张激活卡</p>
+        <p class="series-tag">数字生命盲盒</p>
       </div>
       <div class="wheel" id="wheel" tabindex="0" role="listbox" aria-label="激活卡转轮，左右拨动选择">
         <div class="runner" aria-hidden="true">
-          <!-- 尺子上方、秃秃两侧的两张便签 -->
-          <div class="note n3" style="--paper:#E4F3D6"><b>招聘</b><strong>徒步山友</strong><span>绿化带就是无人区</span></div>
-          <div class="note n4" style="--paper:#FFFFFF"><b>招聘</b><strong>农场主理人</strong><span>种好一颗小番茄</span></div>
           <div class="ruler" id="ruler"><span>cm</span></div>
           <div class="tutu" id="tutu">
             <div class="tutu-body">
@@ -59,20 +46,23 @@
           </div>
         </div>
         <div class="wheel-track" id="wheel-track"></div>
-      </div>
-      <div class="wheel-info">
-        <button class="icon-btn ghost" id="wheel-prev" type="button" aria-label="上一张">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button class="wheel-arrow prev" id="wheel-prev" type="button" aria-label="上一张">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-        <div class="wheel-no"><b id="wheel-no">No.01</b><em id="wheel-hint">左右拨一拨，秃秃会跟着跑</em><span id="wheel-left"></span></div>
-        <button class="icon-btn ghost" id="wheel-next" type="button" aria-label="下一张">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button class="wheel-arrow next" id="wheel-next" type="button" aria-label="下一张">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
-      <div class="actions">
-        <button class="btn" id="btn-pick" type="button" disabled>就选这张</button>
-        <button class="link" type="button" data-open="rules">领券规则</button>
+      <div class="hr-card">
+        <div class="hr-top">
+          <span class="hr-ava"><img src="assets/tutu/front.png" alt=""></span>
+          <div class="hr-who"><b>秃秃 HR</b><span><i></i>刚刚活跃</span></div>
+          <span class="hr-tag" id="hr-tag"></span>
+        </div>
+        <p class="hr-msg" id="hr-msg" aria-live="polite">嘟！左右拨一拨，挑一张看看谁来上岗</p>
+        <button class="btn" id="btn-pick" type="button" disabled>立即沟通</button>
       </div>
+      <button class="link rules-link" type="button" data-open="rules">领券规则</button>
     </section>
 
     <!-- S2 刮卡 / S3 揭晓 -->

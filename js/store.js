@@ -17,7 +17,6 @@
   var state = load();
   state.deck = Array.isArray(state.deck) ? state.deck : [];
   state.opened = Array.isArray(state.opened) ? state.opened : [];
-  state.got = Array.isArray(state.got) ? state.got : [];
   state.leaveShown = !!state.leaveShown;
   state.muted = !!state.muted;
 
@@ -35,10 +34,12 @@
     return arr;
   }
 
-  // 洗牌：7 只秃秃随机放进 7 个位置。每只（包括隐藏款）在任何位置的机会都一样
+  // 洗牌：7 只秃秃随机放进 7 个位置。每只（包括隐藏款）在任何位置的机会都一样。
+  // 图鉴跟着这一副牌走（由已刮开的位置算出来），洗牌后图鉴也从 0 开始
   function reshuffle() {
     state.deck = shuffle(ids());
     state.opened = [];
+    delete state.got;
     save();
   }
 
@@ -53,10 +54,8 @@
 
   function open(i) {
     if (state.opened.indexOf(i) < 0) state.opened.push(i);
-    var id = state.deck[i];
-    if (state.got.indexOf(id) < 0) state.got.push(id);
     save();
-    return id;
+    return state.deck[i];
   }
 
   GJ.store = {
@@ -67,7 +66,7 @@
     left: function () { return state.deck.length - state.opened.length; },
     open: open,
     reshuffle: reshuffle,
-    got: function () { return state.got.slice(); },
+    got: function () { return state.opened.map(function (i) { return state.deck[i]; }); },
     leaveShown: function () { return state.leaveShown; },
     markLeaveShown: function () { state.leaveShown = true; save(); },
     muted: function () { return state.muted; },
