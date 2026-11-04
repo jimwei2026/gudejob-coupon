@@ -200,8 +200,8 @@
   function sizeWheel() {
     var r = $('wheel').getBoundingClientRect();
     if (!r.width) return;
-    // 上方留给尺子和秃秃
-    var w = Math.min(r.width * 0.54, 240, (r.height - 92) / CARD_RATIO);
+    // 上方留给秃秃（约 80px），卡片宽度不超过屏幕一半多一点
+    var w = Math.min(r.width * 0.52, 236, (r.height - 100) / CARD_RATIO);
     $('wheel').style.setProperty('--wcard-w', Math.max(110, Math.floor(w)) + 'px');
     if (state.wheel) {
       state.wheel.measure(); state.wheel.render();
