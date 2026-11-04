@@ -508,8 +508,20 @@
     } else fallback();
   }
 
+  // 左上角「菇的JOB!」：回到抽卡主页。正在播的 PV、打开的弹层、跳转层一律收起
+  function goHome() {
+    GJ.audio.unlock();
+    GJ.player.close();
+    closeSheets(true);
+    clearJump(); $('jump').hidden = true;
+    if (state.screen === 'pick') { state.wheel.intro(introTarget()); return; }
+    GJ.audio.play('slide', { gain: 0.8 });
+    enterPick();
+  }
+
   // ---------- 绑定 ----------
   function bind() {
+    $('btn-home').addEventListener('click', goHome);
     $('btn-mute').addEventListener('click', function () {
       GJ.audio.unlock();
       setMuted(!GJ.audio.isMuted());

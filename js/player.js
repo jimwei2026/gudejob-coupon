@@ -110,7 +110,7 @@
     handlers = opts || {};
     prepare(ch);
     isOpen = true;
-    el.title.textContent = ch.name + ' · 角色 PV';
+    el.title.textContent = ch.name;
     el.error.hidden = true;
     el.unmute.hidden = true;
     el.bigPlay.hidden = true;
@@ -137,10 +137,19 @@
     if (fn) fn();
   }
 
+  // 直接关掉播放器，不触发任何回调（回主页时用）
+  function close() {
+    if (!isOpen) return;
+    isOpen = false;
+    v.pause();
+    el.root.classList.remove('is-open');
+    setTimeout(function () { if (!isOpen) el.root.hidden = true; }, 260);
+  }
+
   function setMuted(m) { if (v) v.muted = m; if (!m && el.unmute) el.unmute.hidden = true; }
 
   GJ.player = {
     init: init, prepare: prepare, unlockFromGesture: unlockFromGesture,
-    open: open, setMuted: setMuted, isOpen: function () { return isOpen; },
+    open: open, close: close, setMuted: setMuted, isOpen: function () { return isOpen; },
   };
 })();
