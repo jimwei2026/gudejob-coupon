@@ -7,9 +7,12 @@
  *  - 「刮了多少」用 20×28 的网格估算，不读整张像素，低端机不卡
  *  - 尺寸变化时按记录的笔画重画，已刮的部分不会丢
  *  - 达到阈值后在手指抬起时翻开，这一下算用户操作，视频可以带声播放
+ *  - 刮的声音是秃秃的「嘟」，划过一段距离嘟一声，节奏跟着手速，音高跟着进度
  */
 (function () {
   var COLS = 20, ROWS = 28;
+  // 「嘟」的音阶（五声音阶），刮得越多音越高，快翻开时像在往上爬
+  var NOTES = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.7];
 
   function loadImage(src) {
     return new Promise(function (resolve, reject) {
@@ -33,6 +36,7 @@
     this.touched = false;
     this.lastMove = 0;
     this.speed = 0;
+    this.travel = 0; this.lastDu = 0; this.duCount = 0;
     this.canvas = document.createElement('canvas');
     this.canvas.className = 'scratch-layer';
     this.canvas.setAttribute('aria-hidden', 'true');
@@ -122,7 +126,7 @@
       var p = self._local(e);
       self.pointers[e.pointerId] = { x: p.x, y: p.y, t: performance.now() };
       self._add([p.x, p.y, p.x, p.y]);
-      self._loop();
+      self._du(true);
     });
 
     cv.addEventListener('pointermove', function (e) {
@@ -139,10 +143,12 @@
         var dist = Math.hypot((p.x - last.x) * self.w, (p.y - last.y) * self.h);
         var dt = Math.max(1, now - last.t);
         self.speed = self.speed * 0.6 + (dist / dt) * 0.4;
+        self.travel += dist;
         last.x = p.x; last.y = p.y; last.t = now;
       }
       self.lastMove = performance.now();
-      GJ.audio.buzz(4, 90);
+      // 手指每划过一段距离「嘟」一声：划得越快，嘟得越密
+      if (self.travel > self.w * 0.15) { self.travel = 0; self._du(false); }
     });
 
     function up(e) {
@@ -187,25 +193,22 @@
     }
   };
 
-  // 刮卡声跟着速度走，停手 70ms 后静音
-  Scratch.prototype._loop = function () {
-    if (this._raf) return;
-    var self = this;
-    this._raf = requestAnimationFrame(function tick() {
-      var active = Object.keys(self.pointers).length > 0;
-      var moving = active && performance.now() - self.lastMove < 70;
-      GJ.audio.setScratch(moving ? Math.min(1, 0.25 + self.speed / 1.4) : 0);
-      if (!moving) self.speed *= 0.8;
-      if (active && !self.done) self._raf = requestAnimationFrame(tick);
-      else { self._raf = 0; GJ.audio.setScratch(0); }
-    });
+  Scratch.prototype._du = function (first) {
+    var now = performance.now();
+    if (now - this.lastDu < 70) return;          // 最快每秒十几声，不会糊成一片
+    this.lastDu = now;
+    var p = Math.min(1, this.progress() / this.threshold);
+    var base = Math.floor(p * (NOTES.length - 2));
+    var note = NOTES[Math.min(NOTES.length - 1, base + (this.duCount++ % 2))];
+    var fast = Math.min(1, this.speed / 1.6);
+    GJ.audio.du({ freq: note, gain: first ? 0.3 : 0.22 + fast * 0.1, dur: 0.15 - fast * 0.05 });
+    GJ.audio.buzz(6, 60);
   };
 
   Scratch.prototype.reveal = function (byGesture) {
     if (this.done) return;
     this.done = true;
     clearTimeout(this._dueTimer);
-    GJ.audio.setScratch(0);
     this.box.classList.add('is-ready');
     this.canvas.classList.add('is-gone');
     this._unbindResize();
@@ -217,7 +220,6 @@
   Scratch.prototype.destroy = function () {
     this.done = true;
     clearTimeout(this._dueTimer);
-    GJ.audio.setScratch(0);
     this._unbindResize();
     if (this.canvas.parentNode) this.canvas.parentNode.removeChild(this.canvas);
   };

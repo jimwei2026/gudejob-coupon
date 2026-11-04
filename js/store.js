@@ -1,9 +1,9 @@
 /*
- * 本地记录：抽卡顺序（洗牌袋）、已解锁的角色、静音设置。
+ * 本地记录：这一副牌（7 个位置各对应哪只秃秃、哪几张已刮开）、图鉴、静音设置。
  * 全部存在 localStorage；读不到（无痕模式、被清理）就从头开始，页面照常可用。
  */
 (function () {
-  var KEY = 'gudejob3-coupon-v1';
+  var KEY = 'gudejob3-coupon-v2';
 
   function load() {
     try {
@@ -15,7 +15,8 @@
   }
 
   var state = load();
-  state.bag = Array.isArray(state.bag) ? state.bag : [];
+  state.deck = Array.isArray(state.deck) ? state.deck : [];
+  state.opened = Array.isArray(state.opened) ? state.opened : [];
   state.got = Array.isArray(state.got) ? state.got : [];
   state.leaveShown = !!state.leaveShown;
   state.muted = !!state.muted;
@@ -34,35 +35,39 @@
     return arr;
   }
 
-  // 洗牌袋：7 只在一轮里各出现一次，抽完再洗一轮。
-  // 隐藏款和其他角色机会均等，第一抽出现的概率约 1/7。
-  function next() {
-    var valid = ids();
-    state.bag = state.bag.filter(function (id) { return valid.indexOf(id) >= 0; });
-    if (!state.bag.length) {
-      var fresh = shuffle(valid.slice());
-      // 新一轮的第一只不和上一只重复，避免「连刮两次同一只」
-      if (state.last && fresh[0] === state.last && fresh.length > 1) {
-        var k = 1 + Math.floor(Math.random() * (fresh.length - 1));
-        var t = fresh[0]; fresh[0] = fresh[k]; fresh[k] = t;
-      }
-      state.bag = fresh;
-    }
-    var id = state.bag.shift();
-    state.last = id;
+  // 洗牌：7 只秃秃随机放进 7 个位置。每只（包括隐藏款）在任何位置的机会都一样
+  function reshuffle() {
+    state.deck = shuffle(ids());
+    state.opened = [];
+    save();
+  }
+
+  // 记录损坏或角色表变了，就重新洗一副
+  (function validate() {
+    var valid = ids().slice().sort().join(',');
+    if (state.deck.slice().sort().join(',') !== valid) reshuffle();
+    state.opened = state.opened.filter(function (i, k, a) {
+      return typeof i === 'number' && i >= 0 && i < state.deck.length && a.indexOf(i) === k;
+    });
+  })();
+
+  function open(i) {
+    if (state.opened.indexOf(i) < 0) state.opened.push(i);
+    var id = state.deck[i];
+    if (state.got.indexOf(id) < 0) state.got.push(id);
     save();
     return id;
   }
 
-  function collect(id) {
-    if (state.got.indexOf(id) < 0) { state.got.push(id); save(); }
-  }
-
   GJ.store = {
-    next: next,
-    collect: collect,
+    deck: function () { return state.deck.slice(); },
+    idAt: function (i) { return state.deck[i]; },
+    isOpened: function (i) { return state.opened.indexOf(i) >= 0; },
+    openedCount: function () { return state.opened.length; },
+    left: function () { return state.deck.length - state.opened.length; },
+    open: open,
+    reshuffle: reshuffle,
     got: function () { return state.got.slice(); },
-    has: function (id) { return state.got.indexOf(id) >= 0; },
     leaveShown: function () { return state.leaveShown; },
     markLeaveShown: function () { state.leaveShown = true; save(); },
     muted: function () { return state.muted; },

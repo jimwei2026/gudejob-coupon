@@ -12,7 +12,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var state = {
     screen: null, current: null, revealed: false, haveCoupon: false,
-    jumped: false, guard: false, wheel: null, scratch: null, autoPV: 0,
+    jumped: false, guard: false, wheel: null, scratch: null, 
   };
 
   // ---------- 通用 ----------
@@ -88,7 +88,7 @@
       b.setAttribute('aria-label', has ? '播放' + c.name + '的 PV' : label + '，未解锁');
       b.innerHTML = '<img alt="" src="assets/figures/' + c.id + '.png"><span></span>';
       b.querySelector('span').textContent = label;
-      if (has) b.addEventListener('click', function () { closeSheets(true); playFromGallery(c); });
+      if (has) b.addEventListener('click', function () { closeSheets(true); playOther(c, function () { openSheet('gallery'); }); });
       wrap.appendChild(b);
     });
     var n = got.length, total = C.characters.length;
@@ -111,6 +111,7 @@
   }
 
   // ---------- S1 选卡 ----------
+  // 7 张卡是一副牌：每个位置背后是固定的一只秃秃，刮过的翻成正面，一轮刮完再洗牌
   function buildWheel() {
     var track = $('wheel-track'), cards = [];
     C.characters.forEach(function (c, i) {
@@ -118,55 +119,119 @@
       el.className = 'wcard';
       el.setAttribute('data-i', i);
       el.setAttribute('role', 'option');
-      el.setAttribute('aria-label', '第 ' + (i + 1) + ' 张激活卡');
-      el.innerHTML = '<div class="wcard-in"><img alt="" draggable="false" src="assets/cards/back.jpg"><span class="wcard-no">No.0' + (i + 1) + '</span></div>';
+      el.innerHTML = '<div class="wcard-in"><img class="wb" alt="" draggable="false" src="assets/cards/back.jpg">' +
+        '<img class="wf" alt="" draggable="false"><span class="wcard-no">No.0' + (i + 1) + '</span>' +
+        '<span class="wcard-stamp">已刮开</span></div>';
       track.appendChild(el);
       cards.push(el);
     });
+    state.cards = cards;
     sizeWheel();
+    state.runner = new GJ.Runner($('tutu'), $('ruler'), $('world'));
     state.wheel = new GJ.Wheel($('wheel'), {
-      count: cards.length, cards: cards, flapper: $('flapper'),
+      count: cards.length, cards: cards,
       onMove: function (i) { $('btn-pick').disabled = true; setNo(i); },
-      onSettle: function (i) { $('btn-pick').disabled = false; setNo(i); },
+      onSettle: function (i) { setNo(i); updatePickButton(i); state.runner.settle(); },
+      onTick: function (dir, speed) { state.runner.step(speed); },
+      onFrame: function (pos, vis) { state.runner.update(pos, vis, state.wheel.spacing); },
       onPick: pick,
     });
-    if (state.wheel.settled) $('btn-pick').disabled = false;
     $('wheel').addEventListener('pointerdown', function () { $('wheel-hint').classList.add('is-off'); }, { once: true });
     $('wheel-prev').addEventListener('click', function () { state.wheel.step(-1); });
     $('wheel-next').addEventListener('click', function () { state.wheel.step(1); });
-    $('btn-pick').addEventListener('click', function () { if (state.wheel.settled) pick(); });
+    $('btn-pick').addEventListener('click', function () { if (state.wheel.settled) pick(state.wheel.index()); });
+  }
+
+  function renderDeck() {
+    state.cards.forEach(function (el, i) {
+      var open = GJ.store.isOpened(i), ch = CHAR[GJ.store.idAt(i)];
+      el.classList.toggle('is-open', open);
+      el.classList.toggle('is-holo', open && !!ch.hidden);
+      var f = el.querySelector('.wf');
+      if (open) f.src = 'assets/cards/' + ch.id + '.jpg'; else f.removeAttribute('src');
+      el.setAttribute('aria-label', open ? '第 ' + (i + 1) + ' 张，已刮开：' + ch.name : '第 ' + (i + 1) + ' 张激活卡，还没刮');
+    });
+    var left = GJ.store.left();
+    $('wheel-left').textContent = left ? '这一副还剩 ' + left + ' 张没刮' : '7 张都刮开啦，洗牌再来一轮';
   }
 
   function setNo(i) { $('wheel-no').textContent = 'No.0' + (i + 1); }
 
+  function updatePickButton(i) {
+    var b = $('btn-pick');
+    b.disabled = false;
+    if (!GJ.store.left()) b.textContent = '洗牌，再来一轮';
+    else if (GJ.store.isOpened(i)) b.textContent = '刮过了 · 看 TA 的角色 PV';
+    else b.textContent = '就选这张';
+  }
+
   function sizeWheel() {
     var r = $('wheel').getBoundingClientRect();
     if (!r.width) return;
-    var w = Math.min(r.width * 0.56, 250, (r.height - 40) / CARD_RATIO);
-    $('wheel').style.setProperty('--wcard-w', Math.max(120, Math.floor(w)) + 'px');
-    if (state.wheel) { state.wheel.measure(); state.wheel.render(); }
+    // 上方留给尺子和秃秃
+    var w = Math.min(r.width * 0.54, 240, (r.height - 104) / CARD_RATIO);
+    $('wheel').style.setProperty('--wcard-w', Math.max(110, Math.floor(w)) + 'px');
+    if (state.wheel) {
+      state.wheel.measure(); state.wheel.render();
+      // 尺子上一大格 = 一张卡的间距
+      $('wheel').style.setProperty('--cm', state.wheel.spacing.toFixed(1) + 'px');
+      state.runner.update(state.wheel.pos, 0, state.wheel.spacing);
+    }
+  }
+
+  // 进场时转到一张还没刮过的卡上
+  function introTarget() {
+    var pool = [];
+    for (var i = 0; i < C.characters.length; i++) if (!GJ.store.isOpened(i)) pool.push(i);
+    if (!pool.length) return state.wheel.index();
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function stopLuck() {
+    if (state.stopSparkles) { state.stopSparkles(); state.stopSparkles = null; }
   }
 
   function enterPick() {
-    clearTimeout(state.autoPV);
     if (state.scratch) { state.scratch.destroy(); state.scratch = null; }
+    stopLuck();
     state.revealed = false;
-    state.current = CHAR[GJ.store.next()];
-    // 结果已经定好，提前加载卡面和 PV，刮完就能播
-    new Image().src = 'assets/cards/' + state.current.id + '.jpg';
-    GJ.player.prepare(state.current);
     show('pick');
     sizeWheel();
+    renderDeck();
     $('btn-pick').disabled = true;
-    state.wheel.intro();
-    if (state.wheel.settled) $('btn-pick').disabled = false;
+    state.wheel.intro(introTarget());
   }
 
-  function pick() {
+  function pick(i) {
     if (state.screen !== 'pick') return;
     GJ.audio.unlock();
+    if (!GJ.store.left()) { reshuffleRound(); return; }
+    var ch = CHAR[GJ.store.idAt(i)];
+    if (GJ.store.isOpened(i)) { playOther(ch, function () {}); return; }
+    state.pos = i;
+    state.current = ch;
+    // 开始加载卡面和 PV，刮完就能播
+    new Image().src = 'assets/cards/' + ch.id + '.jpg';
+    GJ.player.prepare(ch);
+    state.wheel.enabled = false;
+    state.runner.cheer();
     GJ.audio.play('slide', { gain: 0.8 });
-    enterScratch();
+    setTimeout(enterScratch, 420);
+  }
+
+  function reshuffleRound() {
+    var w = $('wheel');
+    w.classList.add('is-shuffling');
+    GJ.audio.play('slide', { gain: 0.9 });
+    state.runner.talk('洗牌咯！');
+    GJ.store.reshuffle();
+    // 卡片转到侧面（看不见牌面）时换成背面
+    setTimeout(renderDeck, 250);
+    setTimeout(function () {
+      w.classList.remove('is-shuffling');
+      $('btn-pick').disabled = true;
+      state.wheel.intro(introTarget());
+    }, 520);
   }
 
   // ---------- S2 刮卡 / S3 揭晓 ----------
@@ -179,8 +244,10 @@
 
   function enterScratch() {
     var ch = state.current, card = $('scratch-card'), screen = $('s-scratch');
-    screen.classList.remove('is-luck');
-    card.classList.remove('is-revealed', 'is-ready');
+    stopLuck();
+    screen.classList.remove('is-luck', 'is-flash');
+    card.classList.remove('is-revealed', 'is-ready', 'is-holo');
+    card.removeAttribute('role'); card.removeAttribute('tabindex'); card.removeAttribute('aria-label');
     $('scratch-title').textContent = '用手指刮开激活卡';
     $('scratch-sub').textContent = '刮开 70% 就会自动翻开';
     $('scratch-meter').style.transform = 'scaleX(0)';
@@ -221,52 +288,75 @@
   }
 
   function reveal() {
-    var ch = state.current, card = $('scratch-card');
+    var ch = state.current, card = $('scratch-card'), screen = $('s-scratch');
     state.revealed = true;
     state.revealTime = performance.now();
-    GJ.store.collect(ch.id);
+    GJ.store.open(state.pos);
     updateCount();
+    renderDeck();
     card.classList.add('is-revealed');
-    GJ.audio.play('sparkle', { gain: ch.hidden ? 1 : 0.8 });
-    GJ.audio.buzz(30, 0);
-    if (ch.hidden) {
-      $('s-scratch').classList.add('is-luck');
-      $('scratch-title').textContent = '你刮到了隐藏款！';
-      $('scratch-sub').textContent = '梦境修复师很少出门哦';
-    } else {
+    if (ch.hidden) luckReveal();
+    else {
+      GJ.audio.play('sparkle', { gain: 0.8 });
+      GJ.audio.buzz(30, 0);
       $('scratch-title').textContent = '是' + ch.name + '！';
       $('scratch-sub').textContent = 'TA 认你做主人了';
     }
     $('bubble-name').textContent = '嘟嘟！我是' + ch.name;
     $('bubble-line').textContent = ch.line;
+    $('reveal-fortune').textContent = ch.fortune;
     $('scratch-foot').hidden = true;
     $('reveal-foot').hidden = false;
+    // 停在这里看卡片和运势；点卡片才播 PV
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', '播放' + ch.name + '的角色 PV');
     requestAnimationFrame(sizeScratch);
-    clearTimeout(state.autoPV);
-    state.autoPV = setTimeout(function () {
-      if (state.screen === 'scratch' && state.revealed && !openSheetEl) openPV(ch, 'reveal');
-    }, 1700);
+  }
+
+  // 隐藏款：一道闪光、满屏星星炸开、卡面炫彩流光、周围一直飘闪粉
+  function luckReveal() {
+    var screen = $('s-scratch'), card = $('scratch-card');
+    screen.classList.add('is-luck', 'is-flash');
+    card.classList.add('is-holo');
+    $('scratch-title').textContent = '你刮到了隐藏款！';
+    $('scratch-sub').textContent = '梦境修复师很少出门，你是幸运儿';
+    GJ.audio.thump({ freq: 70, gain: 0.8, dur: 0.25 });
+    GJ.audio.play('shimmer', { gain: 0.9 });
+    GJ.audio.play('sparkle', { gain: 1 });
+    GJ.audio.buzz([40, 60, 40, 60, 120], 0);
+    setTimeout(function () {
+      var sr = screen.getBoundingClientRect(), cr = card.getBoundingClientRect();
+      GJ.fx.starBurst(screen, { x: cr.left - sr.left + cr.width / 2, y: cr.top - sr.top + cr.height * 0.45, count: 110 });
+    }, 140);
+    setTimeout(function () { screen.classList.remove('is-flash'); }, 900);
+    state.stopSparkles = GJ.fx.sparkles($('scratch-area'));
   }
 
   // ---------- PV ----------
   function stripText() { return C.coupon.name + ' ¥' + C.coupon.amount + ' 已备好'; }
 
-  function openPV(ch, mode) {
-    clearTimeout(state.autoPV);
+  function openPV(ch) {
     GJ.player.open(ch, {
       strip: stripText(),
-      onBack: function () { /* 留在当前页面 */ },
+      onBack: function () { /* 回到卡片 */ },
       onSkip: goCoupon,
       onEnded: goCoupon,
     });
   }
 
-  function playFromGallery(ch) {
+  // 看已经刮开过的角色（转轮上翻开的卡、图鉴）。点券条就以 TA 为主角去领券
+  function playOther(ch, back) {
+    var canCoupon = GJ.store.got().length > 0;
     GJ.player.open(ch, {
-      strip: state.haveCoupon || state.revealed ? stripText() : null,
-      onBack: function () { openSheet('gallery'); },
-      onSkip: function () { if (state.haveCoupon || state.revealed) goCoupon(); else openSheet('gallery'); },
-      onEnded: function () { openSheet('gallery'); },
+      strip: canCoupon ? stripText() : null,
+      onBack: back,
+      onSkip: function () {
+        if (!canCoupon) { back(); return; }
+        state.current = ch; state.revealed = true;
+        goCoupon();
+      },
+      onEnded: back,
     });
   }
 
@@ -277,6 +367,7 @@
     $('result-card').alt = ch.name + '的身份卡';
     $('result-name').textContent = ch.name + '认你做主人了';
     $('result-hidden').hidden = !ch.hidden;
+    $('result-card-wrap').classList.toggle('is-holo', !!ch.hidden);
     $('result-count').textContent = '图鉴 ' + GJ.store.got().length + '/' + C.characters.length;
     $('result-fortune').textContent = ch.fortune;
     $('c-amount').textContent = cp.amount;
@@ -293,8 +384,8 @@
   }
 
   function goCoupon() {
-    clearTimeout(state.autoPV);
     if (!state.revealed) return;
+    stopLuck();
     state.haveCoupon = true;
     fillCoupon();
     if (state.screen !== 'coupon') {
@@ -387,11 +478,13 @@
     });
     $('scratch-card').addEventListener('click', function () {
       // 刮卡最后那一下抬手也会触发 click，揭晓后 0.8 秒内的点击不算
-      if (state.revealed && state.screen === 'scratch' && performance.now() - state.revealTime > 800) openPV(state.current, 'reveal');
+      if (state.revealed && state.screen === 'scratch' && performance.now() - state.revealTime > 800) openPV(state.current);
     });
     $('btn-to-coupon').addEventListener('click', goCoupon);
-    $('btn-replay').addEventListener('click', function () { openPV(state.current, 'reveal'); });
-    $('btn-pv-again').addEventListener('click', function () { openPV(state.current, 'coupon'); });
+    $('scratch-card').addEventListener('keydown', function (e) {
+      if ((e.key === 'Enter' || e.key === ' ') && state.revealed && state.screen === 'scratch') { e.preventDefault(); openPV(state.current); }
+    });
+    $('btn-pv-again').addEventListener('click', function () { openPV(state.current); });
     $('btn-again').addEventListener('click', function () { closeSheets(true); enterPick(); });
     $('g-again').addEventListener('click', function () { closeSheets(true); enterPick(); });
     document.querySelectorAll('[data-channel]').forEach(function (b) {
@@ -409,9 +502,6 @@
 
     // 从抖音 / 淘宝返回时，页面可能从缓存恢复，收起跳转层
     window.addEventListener('pageshow', function (e) { if (e.persisted) { clearJump(); $('jump').hidden = true; } });
-    document.addEventListener('visibilitychange', function () {
-      if (document.hidden) GJ.audio.setScratch(0);
-    });
 
     // 防止页面被拖动、双指缩放、双击放大
     document.addEventListener('touchmove', function (e) {
@@ -448,7 +538,6 @@
     renderRules();
     makeBurst();
     bind();
-    show('pick');
     buildWheel();
     enterPick();
   }

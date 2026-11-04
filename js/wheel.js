@@ -1,5 +1,6 @@
 /*
  * 选卡转轮：无限循环、跟手拖动、甩动惯性、每格一次「咔」、停下吸附回弹。
+ * 指针（秃秃）由外部根据 onTick / onFrame 回调来驱动。
  * 物理量单位：位置 = 卡片格数，速度 = 格/秒，时间 = 秒。
  */
 (function () {
@@ -13,7 +14,6 @@
   var FLING_BOOST = 1.3;   // 松手时把手指速度放大一点，甩起来更有劲
   var DETENT = 34;         // 齿格：惯性转动时每经过一格速度顿一下
   var STICK = 0.6;         // 齿格：拖动时卡片在正中附近「粘」一下再跳过去
-  var FLAP_K = 900, FLAP_C = 26;
 
   function wrap(x, n) { return ((((x + n / 2) % n) + n) % n) - n / 2; }
   function mod(x, n) { return ((x % n) + n) % n; }
@@ -23,14 +23,15 @@
     this.root = root;
     this.n = opts.count;
     this.cards = opts.cards;          // 每张卡的外层元素
-    this.flapper = opts.flapper;
+    this.onTick = opts.onTick || function () {};    // 经过一格：(方向, 速度)
+    this.onFrame = opts.onFrame || function () {};  // 每一帧：(位置, 速度, dt)
     this.onSettle = opts.onSettle || function () {};
     this.onMove = opts.onMove || function () {};
     this.onPick = opts.onPick || function () {};
     this.pos = 0; this.vel = 0; this.target = 0;
     this.mode = 'idle';
     this.lastIdx = 0;
-    this.flapA = 0; this.flapV = 0;
+    this.vis = 0; this._lastPos = 0;
     this.bump = 0;
     this.drop = 0; this.dropT = 0;
     this.settled = true;
@@ -58,7 +59,13 @@
       var dt = Math.min(0.034, Math.max(0.001, (now - self._t) / 1000));
       self._t = now;
       var busy = self._step(dt);
+      // 实际看到的转动速度（拖动时也有），给秃秃跑步用
+      var dv = (self.pos - self._lastPos) / dt;
+      self._lastPos = self.pos;
+      self.vis = self.vis * 0.75 + dv * 0.25;
+      if (!busy) self.vis = 0;
       self.render();
+      self.onFrame(self.pos, self.vis, dt);
       if (busy) self._raf = requestAnimationFrame(loop);
       else self._raf = 0;
     });
@@ -66,7 +73,16 @@
 
   Wheel.prototype._step = function (dt) {
     var busy = false;
-    if (this.mode === 'coast') {
+    if (this.mode === 'tween') {
+      // 进场：缓动着转到指定的那一格
+      var tw = this._tween, k = Math.min(1, (performance.now() - tw.t0) / tw.dur);
+      var e = 1 - Math.pow(1 - k, 3);
+      var prev = this.pos;
+      this.pos = tw.from + (tw.to - tw.from) * e;
+      this.vel = (this.pos - prev) / dt;
+      if (k >= 1) { this.pos = tw.to; this.vel = 0; this.mode = 'spring'; this.target = tw.to; }
+      busy = true;
+    } else if (this.mode === 'coast') {
       var frac = this.pos - Math.round(this.pos);
       this.vel += -DETENT * Math.sin(2 * Math.PI * frac) * dt;
       this.pos += this.vel * dt;
@@ -88,7 +104,7 @@
       busy = true;
     }
 
-    // 经过一格：拨片被拨一下、咔一声、中间那张顶一下
+    // 经过一格：咔一声、中间那张顶一下、秃秃踩一步
     var idx = Math.round(this.pos);
     if (idx !== this.lastIdx) {
       var dir = idx > this.lastIdx ? 1 : -1;
@@ -97,18 +113,10 @@
       GJ.audio.play('tick', { rate: 0.9 + Math.min(speed / 22, 0.6), gain: 1 });
       GJ.audio.thump({ freq: 150 + Math.min(speed, 20) * 4, gain: 0.32, dur: 0.05 });
       GJ.audio.buzz(10, 30);
-      this.flapV += -dir * (820 + Math.min(speed, 24) * 40);
       this.bump = 1;
+      this.onTick(dir, speed);
       this.onMove(this.index());
     }
-
-    // 拨片的弹簧
-    var fa = -FLAP_K * this.flapA - FLAP_C * this.flapV;
-    this.flapV += fa * dt; this.flapA += this.flapV * dt;
-    if (this.flapA > 34) { this.flapA = 34; this.flapV *= -0.35; }
-    if (this.flapA < -34) { this.flapA = -34; this.flapV *= -0.35; }
-    if (Math.abs(this.flapA) > 0.05 || Math.abs(this.flapV) > 0.5) busy = true;
-    else { this.flapA = 0; this.flapV = 0; }
 
     this.bump *= Math.exp(-12 * dt);
     if (this.bump > 0.01) busy = true; else this.bump = 0;
@@ -166,14 +174,16 @@
       el.classList.toggle('is-center', ad < 0.5);
       el.setAttribute('aria-hidden', ad < 0.5 ? 'false' : 'true');
     }
-    if (this.flapper) this.flapper.style.transform = 'rotate(' + this.flapA.toFixed(2) + 'deg)';
   };
 
-  // 进场：从左边甩进来，转几格后停下，一看就知道能拨
-  Wheel.prototype.intro = function () {
-    if (reduceMotion) return;
-    this.pos = -3.4; this.lastIdx = Math.round(this.pos); this.vel = 11;
-    this.mode = 'coast'; this._unsettle(); this._kick();
+  // 进场：从左边转进来，经过几格后停在指定的那一张，一看就知道能拨
+  Wheel.prototype.intro = function (target) {
+    var cur = Math.round(this.pos);
+    var to = cur + mod(target - cur, this.n);
+    if (to - cur < 3) to += this.n;          // 至少转过 3 格，才有「转进来」的感觉
+    if (reduceMotion) { this.pos = to; this.lastIdx = to; this._lastPos = to; this.render(); this._settle(); return; }
+    this._tween = { from: this.pos, to: to, t0: performance.now(), dur: 1100 + (to - cur) * 60 };
+    this.mode = 'tween'; this._unsettle(); this._kick();
   };
 
   Wheel.prototype.step = function (dir) {
