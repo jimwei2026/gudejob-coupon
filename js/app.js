@@ -241,9 +241,6 @@
     if (GJ.store.isOpened(i)) { playOther(ch, function () {}); return; }
     state.pos = i;
     state.current = ch;
-    // 开始加载卡面和 PV，刮完就能播
-    new Image().src = 'assets/cards/' + ch.id + '.jpg';
-    GJ.player.prepare(ch);
     state.wheel.enabled = false;
     state.runner.cheer();
     GJ.audio.play('slide', { gain: 0.8 });
@@ -286,8 +283,9 @@
     $('scratch-meter').style.transform = 'scaleX(0)';
     $('scratch-foot').hidden = false;
     $('reveal-foot').hidden = true;
-    $('scratch-front').src = 'assets/cards/' + ch.id + '.jpg';
+    $('scratch-front').removeAttribute('src');
     $('scratch-front').alt = ch.name + '的身份卡';
+    $('scratch-sub').textContent = '卡片加载中……';
     // 上一轮揭晓时卡片缩小过，这里直接回到大尺寸，不要过渡，否则刮层会按过渡中的尺寸画
     card.classList.add('no-anim');
     show('scratch');
@@ -302,7 +300,14 @@
 
     state.scratch = new GJ.Scratch(card, {
       cover: 'assets/cards/back.jpg',
+      front: 'assets/cards/' + ch.id + '.jpg',
+      frontEl: $('scratch-front'),
       threshold: C.revealAt,
+      // 卡片好了才开始下载 PV，不和卡面抢网速
+      onReady: function () {
+        if (!said) $('scratch-sub').textContent = '刮开 70% 就会自动翻开';
+        GJ.player.prepare(ch);
+      },
       onFirstTouch: function () {
         clearTimeout(hintTimer);
         hint.classList.remove('is-on');
@@ -316,7 +321,8 @@
     });
     state.scratch.ready.catch(function (err) {
       log('scratch failed ' + (err && err.message));
-      toast('卡片没加载出来，已直接翻开');
+      toast('网络有点慢，卡片已直接翻开');
+      $('scratch-front').src = 'assets/cards/' + ch.id + '.jpg';
       state.scratch.reveal(false);
     });
   }
@@ -519,7 +525,9 @@
     $('btn-flip').addEventListener('click', function () {
       GJ.audio.unlock();
       GJ.player.unlockFromGesture();
-      if (state.scratch) state.scratch.reveal(true);
+      // 卡片还没加载完时，等加载好再翻开，不会翻出空白
+      var sc = state.scratch;
+      if (sc) sc.ready.then(function () { sc.reveal(true); }, function () {});
     });
     $('scratch-card').addEventListener('click', function () {
       // 刮卡最后那一下抬手也会触发 click，揭晓后 0.8 秒内的点击不算
@@ -576,6 +584,16 @@
     }
   }
 
+  // 首屏稳定后，在后台一张一张地把 7 张卡面先下载好，选卡时就不用等
+  function preloadCards() {
+    var queue = GJ.store.deck().filter(function (id, i) { return !GJ.store.isOpened(i); });
+    (function next() {
+      var id = queue.shift();
+      if (!id) return;
+      GJ.loadImage('assets/cards/' + id + '.jpg', 1).then(next, next);
+    })();
+  }
+
   function init() {
     GJ.player.init();
     setMuted(GJ.store.muted());
@@ -585,6 +603,7 @@
     bind();
     buildWheel();
     enterPick();
+    setTimeout(preloadCards, 1200);
   }
 
   GJ.app = { setMuted: setMuted };

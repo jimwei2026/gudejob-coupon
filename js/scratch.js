@@ -7,21 +7,29 @@
  *  - 「刮了多少」用 20×28 的网格估算，不读整张像素，低端机不卡
  *  - 尺寸变化时按记录的笔画重画，已刮的部分不会丢
  *  - 达到阈值后在手指抬起时翻开，这一下算用户操作，视频可以带声播放
- *  - 刮的声音是秃秃的「嘟」，划过一段距离嘟一声，节奏跟着手速，音高跟着进度
+ *  - 刮的声音是秃秃的原声「嘟」（assets/sfx/du.mp3），划过一段距离嘟一声，节奏跟着手速，音高跟着进度
  */
 (function () {
   var COLS = 20, ROWS = 28;
-  // 「嘟」的音阶（五声音阶），刮得越多音越高，快翻开时像在往上爬
-  var NOTES = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.7];
+  // 秃秃原声「嘟」的变速：刮得越多音越高，快翻开时像在往上爬
+  var RATES = [0.94, 1, 1.06, 1.12, 1.19, 1.26, 1.33];
 
-  function loadImage(src) {
+  // 加载图片，失败自动重试两次（网络抖动或服务器偶尔返回 503 时不至于直接失败）
+  function loadImage(src, tries) {
+    tries = tries == null ? 2 : tries;
     return new Promise(function (resolve, reject) {
       var img = new Image();
       img.onload = function () { resolve(img); };
-      img.onerror = function () { reject(new Error('图片加载失败：' + src)); };
+      img.onerror = function () {
+        if (tries <= 0) { reject(new Error('图片加载失败：' + src)); return; }
+        setTimeout(function () {
+          loadImage(src + (src.indexOf('?') < 0 ? '?' : '&') + 'retry=' + tries, tries - 1).then(resolve, reject);
+        }, 600);
+      };
       img.src = src;
     });
   }
+  GJ.loadImage = loadImage;
 
   function Scratch(box, opts) {
     this.box = box;
@@ -43,11 +51,15 @@
     box.appendChild(this.canvas);
     this.ctx = this.canvas.getContext('2d');
     var self = this;
-    this.ready = loadImage(opts.cover).then(function (img) {
-      self.cover = img;
+    // 卡背（刮层）和卡面都下载好了才能刮，否则网慢时会刮开一片空白
+    this.ready = Promise.all([loadImage(opts.cover), opts.front ? loadImage(opts.front) : null]).then(function (imgs) {
+      if (self.done) return;
+      self.cover = imgs[0];
+      if (opts.frontEl && imgs[1]) opts.frontEl.src = imgs[1].src;
       self.layout();
       self._bind();
       self.box.classList.add('is-ready');
+      if (opts.onReady) opts.onReady();
     });
   }
 
@@ -195,13 +207,13 @@
 
   Scratch.prototype._du = function (first) {
     var now = performance.now();
-    if (now - this.lastDu < 70) return;          // 最快每秒十几声，不会糊成一片
+    if (now - this.lastDu < 100) return;         // 最快每秒十声左右，不会糊成一片
     this.lastDu = now;
     var p = Math.min(1, this.progress() / this.threshold);
-    var base = Math.floor(p * (NOTES.length - 2));
-    var note = NOTES[Math.min(NOTES.length - 1, base + (this.duCount++ % 2))];
+    var base = Math.floor(p * (RATES.length - 2));
+    var rate = RATES[Math.min(RATES.length - 1, base + (this.duCount++ % 2))];
     var fast = Math.min(1, this.speed / 1.6);
-    GJ.audio.du({ freq: note, gain: first ? 0.3 : 0.22 + fast * 0.1, dur: 0.15 - fast * 0.05 });
+    GJ.audio.play('du', { rate: rate, gain: first ? 0.9 : 0.7 + fast * 0.25 });
     GJ.audio.buzz(6, 60);
   };
 

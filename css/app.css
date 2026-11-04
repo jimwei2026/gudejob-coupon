@@ -560,3 +560,12 @@ p, h1, h2 { margin: 0; }
   .series { font-size: 20px; }
   .pill { padding: 0 10px; }
 }
+
+/* 卡片还没下载好时，卡上显示加载中 */
+.card-loading {
+  position: absolute; inset: 0; z-index: 2; display: grid; place-content: center; justify-items: center; gap: 10px;
+  font-size: 13px; font-weight: 700; color: var(--brown); pointer-events: none;
+  background: rgba(247, 242, 234, .6); opacity: 0; transition: opacity .25s;
+}
+.card-loading i { width: 30px; height: 30px; border-radius: 50%; border: 3px solid rgba(132, 101, 74, .25); border-top-color: var(--brown); animation: spin .8s linear infinite; }
+.scratch-card:not(.is-ready) .card-loading { opacity: 1; transition-delay: .3s; }
