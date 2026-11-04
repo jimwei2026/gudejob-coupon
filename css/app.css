@@ -426,6 +426,8 @@ p, h1, h2 { margin: 0; }
 .tutu.is-left .t-front, .tutu.is-right .t-front, .tutu.is-wave .t-front { display: none; }
 .tutu.is-left .t-turn, .tutu.is-right .t-turn { display: block; }
 .tutu.is-right .t-turn { transform: scaleX(-1); }
+/* 转身是瞬间的，不能有过渡：左右翻转过渡到一半宽度是 0，秃秃会变成一条细线 */
+.tutu .t-turn { transition: none; }
 .tutu.is-wave .t-wave { display: block; }
 /* 停下：一屁股坐下，喘气 */
 .tutu.is-sit .t-front { transform: translateY(4px) scale(1.1, .82); animation: breathe 1.4s ease-in-out .35s infinite; }
