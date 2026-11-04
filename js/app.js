@@ -1,6 +1,6 @@
 /*
  * 页面流程：选卡 → 刮卡 → 揭晓并播放 PV → 领券 → 跳转抖音 / 天猫。
- * 旁支：图鉴、再刮一张、领券规则、离开提醒（只出现一次）。
+ * 旁支：已上岗名单、再刮一张、领券规则、离开提醒（只出现一次）。
  */
 (function () {
   var C = GJ.config;
@@ -120,7 +120,7 @@
     });
     var n = got.length, total = C.characters.length;
     $('g-count').textContent = n + '/' + total;
-    $('g-sub').textContent = n >= total ? '嘟嘟！7 只秃秃都认识你了' : '点亮的秃秃可以再看一次 TA 的 PV';
+    $('g-sub').textContent = n >= total ? '7 只秃秃都上岗啦' : '已上岗的秃秃，点一下可以再看 TA 的角色 PV';
     $('g-again').hidden = !state.revealed;
   }
 
@@ -418,7 +418,7 @@
     $('result-name').textContent = ch.name + '认你做主人了';
     $('result-hidden').hidden = !ch.hidden;
     $('result-card-wrap').classList.toggle('is-holo', !!ch.hidden);
-    $('result-count').textContent = '图鉴 ' + GJ.store.got().length + '/' + C.characters.length;
+    $('result-count').textContent = '已上岗 ' + GJ.store.got().length + '/' + C.characters.length;
     $('result-fortune').textContent = ch.fortune;
     $('c-amount').textContent = cp.amount;
     $('c-name').textContent = cp.name;

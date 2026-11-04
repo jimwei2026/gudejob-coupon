@@ -7,7 +7,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#F7F2EA">
 <title>菇的JOB3.0领券指南</title>
-<link rel="stylesheet" href="css/app.css?v=202611041755">
+<link rel="stylesheet" href="css/app.css?v=202611041832">
 </head>
 <body>
 <div class="app" id="app">
@@ -15,7 +15,7 @@
   <header class="topbar">
     <div class="brand"><p class="series">菇的JOB!</p></div>
     <div class="topbar-actions">
-      <button class="pill" id="btn-gallery" type="button" aria-label="打开图鉴">图鉴 <b id="gallery-count">0/7</b></button>
+      <button class="pill" id="btn-gallery" type="button" aria-label="查看已上岗的秃秃">已上岗 <b id="gallery-count">0/7</b></button>
       <button class="icon-btn" id="btn-mute" type="button" aria-label="静音" aria-pressed="false">
         <svg class="i-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.2L12 5.6v12.8l-4.8-3.9H4z" fill="currentColor"/><path d="M15.5 8.6a4.6 4.6 0 0 1 0 6.8M18 6.2a8 8 0 0 1 0 11.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         <svg class="i-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.2L12 5.6v12.8l-4.8-3.9H4z" fill="currentColor"/><path d="M16 9.5l5 5m0-5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -75,7 +75,7 @@
           <div class="card-loading" aria-hidden="true"><i></i>卡片加载中</div>
           <div class="hidden-badge" aria-hidden="true">隐藏款</div>
           <div class="holo" aria-hidden="true"></div>
-          <div class="card-hint" aria-hidden="true"><i></i>点卡片，看 TA 的角色 PV</div>
+          <div class="card-hint" aria-hidden="true"></div>
         </div>
       </div>
       <div class="scratch-foot" id="scratch-foot">
@@ -83,6 +83,7 @@
         <button class="link" id="btn-flip" type="button">直接翻开</button>
       </div>
       <div class="reveal-foot" id="reveal-foot" hidden>
+        <p class="reveal-tip" aria-hidden="true"><i></i>点卡片，看 TA 的角色 PV</p>
         <div class="actions">
           <button class="btn" id="btn-to-coupon" type="button">领取接 TA 回家券</button>
         </div>
@@ -179,8 +180,8 @@
   <div class="scrim" id="scrim" hidden></div>
   <div class="sheet" id="sheet-gallery" hidden role="dialog" aria-modal="true" aria-labelledby="g-title">
     <div class="grab" aria-hidden="true"></div>
-    <h2 id="g-title">菇的 JOB 图鉴 <span id="g-count"></span></h2>
-    <p class="sheet-sub" id="g-sub">点亮的秃秃可以再看一次 TA 的 PV</p>
+    <h2 id="g-title">已上岗的秃秃 <span id="g-count"></span></h2>
+    <p class="sheet-sub" id="g-sub">已上岗的秃秃，点一下可以再看 TA 的角色 PV</p>
     <div class="gallery" id="gallery"></div>
     <div class="actions">
       <button class="btn" id="g-again" type="button">再刮一张</button>
@@ -207,15 +208,15 @@
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </div>
 
-<script src="js/config.js?v=202611041755"></script>
-<script src="js/sfx-data.js?v=202611041755"></script>
-<script src="js/audio.js?v=202611041755"></script>
-<script src="js/store.js?v=202611041755"></script>
-<script src="js/wheel.js?v=202611041755"></script>
-<script src="js/runner.js?v=202611041755"></script>
-<script src="js/fx.js?v=202611041755"></script>
-<script src="js/scratch.js?v=202611041755"></script>
-<script src="js/player.js?v=202611041755"></script>
-<script src="js/app.js?v=202611041755"></script>
+<script src="js/config.js?v=202611041832"></script>
+<script src="js/sfx-data.js?v=202611041832"></script>
+<script src="js/audio.js?v=202611041832"></script>
+<script src="js/store.js?v=202611041832"></script>
+<script src="js/wheel.js?v=202611041832"></script>
+<script src="js/runner.js?v=202611041832"></script>
+<script src="js/fx.js?v=202611041832"></script>
+<script src="js/scratch.js?v=202611041832"></script>
+<script src="js/player.js?v=202611041832"></script>
+<script src="js/app.js?v=202611041832"></script>
 </body>
 </html>
