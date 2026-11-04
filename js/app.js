@@ -10,6 +10,33 @@
   var CARD_RATIO = 2000 / 1432;
 
   var $ = function (id) { return document.getElementById(id); };
+
+  // 调试：链接带 ?debug=1 时，左下角显示最近的事件，方便在真机 / 模拟器上排查
+  var DEBUG = /[?&]debug=1/.test(location.search);
+  var logBox = null, logLines = [];
+  function log(msg) {
+    if (!DEBUG) return;
+    if (!logBox) {
+      logBox = document.createElement('pre');
+      logBox.style.cssText = 'position:fixed;left:4px;bottom:4px;z-index:9999;max-width:70vw;margin:0;padding:4px 6px;font:10px/1.35 ui-monospace,Menlo,monospace;background:rgba(0,0,0,.72);color:#9f9;pointer-events:none;white-space:pre-wrap';
+      document.body.appendChild(logBox);
+    }
+    var t = (performance.now() / 1000).toFixed(2);
+    logLines.push(t + ' ' + msg);
+    if (logLines.length > 16) logLines.shift();
+    logBox.textContent = logLines.join('\n');
+  }
+  GJ.log = log;
+  if (DEBUG) {
+    ['pointerdown', 'pointerup', 'pointercancel', 'click'].forEach(function (type) {
+      document.addEventListener(type, function (e) {
+        var t = e.target, name = t.id || (t.className && String(t.className).split(' ')[0]) || t.tagName;
+        log(type + ' ' + (e.pointerType || '') + ' ' + name + ' @' + Math.round(e.clientX) + ',' + Math.round(e.clientY));
+      }, true);
+    });
+    window.addEventListener('error', function (e) { log('ERROR ' + e.message); });
+    window.addEventListener('unhandledrejection', function (e) { log('REJECT ' + (e.reason && e.reason.message || e.reason)); });
+  }
   var state = {
     screen: null, current: null, revealed: false, haveCoupon: false,
     jumped: false, guard: false, wheel: null, scratch: null, 
@@ -203,6 +230,7 @@
   }
 
   function pick(i) {
+    log('pick ' + i + ' screen=' + state.screen);
     if (state.screen !== 'pick') return;
     GJ.audio.unlock();
     if (!GJ.store.left()) { reshuffleRound(); return; }
@@ -281,13 +309,15 @@
       },
       onReveal: function () { clearTimeout(hintTimer); hint.classList.remove('is-on'); reveal(); },
     });
-    state.scratch.ready.catch(function () {
+    state.scratch.ready.catch(function (err) {
+      log('scratch failed ' + (err && err.message));
       toast('卡片没加载出来，已直接翻开');
       state.scratch.reveal(false);
     });
   }
 
   function reveal() {
+    log('reveal ' + (state.current && state.current.id));
     var ch = state.current, card = $('scratch-card'), screen = $('s-scratch');
     state.revealed = true;
     state.revealTime = performance.now();
@@ -337,6 +367,7 @@
   function stripText() { return C.coupon.name + ' ¥' + C.coupon.amount + ' 已备好'; }
 
   function openPV(ch) {
+    log('openPV ' + ch.id);
     GJ.player.open(ch, {
       strip: stripText(),
       onBack: function () { /* 回到卡片 */ },
@@ -400,6 +431,7 @@
   }
 
   window.addEventListener('popstate', function () {
+    log('popstate guard=' + state.guard);
     if (!state.guard) return;
     state.guard = false;
     if (state.screen === 'coupon' && !state.jumped && !GJ.store.leaveShown() && !GJ.player.isOpen()) {

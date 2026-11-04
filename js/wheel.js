@@ -226,6 +226,7 @@
       if (!d || e.pointerId !== d.id) return;
       self._drag = null;
       var now = performance.now();
+      if (GJ.log) GJ.log('wheel ' + e.type + ' moved=' + Math.round(d.moved) + ' ms=' + Math.round(now - d.t0));
       if (d.moved < 6 && now - d.t0 < 400 && e.type === 'pointerup') {
         self.mode = 'idle';
         self._tap(d.target);
