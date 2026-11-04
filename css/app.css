@@ -70,7 +70,7 @@ p, h1, h2 { margin: 0; }
   padding: 0 max(14px, env(safe-area-inset-right, 0px)) 0 max(18px, env(safe-area-inset-left, 0px));
   z-index: 20;
 }
-/* 顶栏左边：系列名 + 数字生命盲盒 */
+/* 顶栏左边：系列名 */
 .brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .topbar-actions { display: flex; align-items: center; gap: 6px; }
 .pill {
@@ -499,11 +499,6 @@ p, h1, h2 { margin: 0; }
   /* 和卡背「Good Job!」一样的描边字 */
   text-shadow: 2px 0 #FFE6A0, -2px 0 #FFE6A0, 0 2px #FFE6A0, 0 -2px #FFE6A0, 2px 2px #FFE6A0, -2px -2px #FFE6A0, 2px -2px #FFE6A0, -2px 2px #FFE6A0, 0 4px 0 rgba(196, 90, 46, .2);
 }
-.series small { font-size: 12px; font-weight: 800; color: var(--ink-2); text-shadow: none; margin-left: 3px; letter-spacing: .04em; }
-.series-tag {
-  flex: 0 0 auto; font-size: 11px; font-weight: 700; letter-spacing: .06em; white-space: nowrap;
-  color: var(--brown); background: rgba(132, 101, 74, .12); padding: 2px 7px; border-radius: 8px;
-}
 .wheel-arrow {
   position: absolute; top: calc(50% + 34px); z-index: 320; width: 36px; height: 36px; margin-top: -18px; border-radius: 50%;
   display: grid; place-items: center; background: rgba(255, 253, 249, .92); color: var(--ink);
@@ -563,7 +558,5 @@ p, h1, h2 { margin: 0; }
 @media (max-width: 380px) {
   .brand { gap: 6px; }
   .series { font-size: 20px; }
-  .series small { font-size: 11px; }
-  .series-tag { font-size: 10px; padding: 1px 6px; }
   .pill { padding: 0 10px; }
 }

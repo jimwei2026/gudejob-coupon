@@ -187,13 +187,13 @@
     b.disabled = false;
     if (!GJ.store.left()) {
       b.textContent = '洗牌，再招一轮';
-      msg.textContent = '7 个岗位都招满啦！洗牌再招一轮？';
+      msg.textContent = '人，7 个岗位都招满啦！洗牌再招一轮？';
     } else if (GJ.store.isOpened(i)) {
       b.textContent = '看 TA 的角色 PV';
-      msg.textContent = '已经上岗啦，看看 TA 在干嘛？';
+      msg.textContent = '人，这个已经上岗啦，看看 TA 在干嘛？';
     } else {
       b.textContent = '立即沟通';
-      msg.textContent = '还没有被认领，要聊聊么？';
+      msg.textContent = '人，这个还没有被认领，要聊聊么？';
     }
   }
 
