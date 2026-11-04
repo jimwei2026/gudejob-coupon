@@ -27,47 +27,15 @@
 
     <!-- S1 选卡 -->
     <section class="screen" id="s-pick" data-screen="pick" aria-label="挑一张激活卡">
-      <!-- 背景：秃秃 4cm 高看到的大世界——纽扣、瓶盖、叶子、回形针、小番茄 -->
+      <!-- 背景：招聘栏。软木板上钉着 7 个岗位的招聘便签（隐藏款那张写着「？？？」），图钉用品牌红 -->
       <div class="world" aria-hidden="true">
-        <svg id="world" viewBox="0 0 390 720" preserveAspectRatio="xMidYMid slice">
-          <g opacity=".62">
-            <!-- 纽扣 -->
-            <g transform="translate(18 96) rotate(-12)">
-              <circle r="74" fill="#EDC071"/><circle r="74" fill="none" stroke="#D9A24B" stroke-width="10"/>
-              <circle r="52" fill="#F2CD86"/>
-              <circle cx="-15" cy="-15" r="9" fill="#C98F3A"/><circle cx="15" cy="-15" r="9" fill="#C98F3A"/>
-              <circle cx="-15" cy="15" r="9" fill="#C98F3A"/><circle cx="15" cy="15" r="9" fill="#C98F3A"/>
-            </g>
-            <!-- 瓶盖 -->
-            <g transform="translate(372 150) rotate(14)">
-              <path fill="#E66A52" d="M0-66L9-64 17-64 25-60 33-58 39-52 47-48 51-40 57-33 59-25 63-17 63-8 66 0 63 8 63 17 59 25 57 33 51 40 47 48 39 52 33 58 25 60 17 64 9 64 0 66-9 64-17 64-25 60-33 58-39 52-47 48-51 40-57 33-59 25-63 17-63 8-66 0-63-8-63-17-59-25-57-33-51-40-47-48-39-52-33-58-25-60-17-64-9-64z"/>
-              <circle r="48" fill="#F08A72"/><circle r="48" fill="none" stroke="#D9573F" stroke-width="3" stroke-dasharray="4 6"/>
-              <ellipse cx="-16" cy="-18" rx="14" ry="7" fill="#FBB4A2" transform="rotate(-30)"/>
-            </g>
-            <!-- 叶子 -->
-            <g transform="translate(-6 560) rotate(-28)">
-              <path d="M0 0C40-58 128-62 170-8 128 42 42 50 0 0z" fill="#A7C98A"/>
-              <path d="M8 0C60-6 110-8 160-8" stroke="#86AE69" stroke-width="5" fill="none" stroke-linecap="round"/>
-              <path d="M58-4L84-30M96-6L120-30M58 0L80 22M98-4L118 18" stroke="#86AE69" stroke-width="3" fill="none" stroke-linecap="round"/>
-            </g>
-            <!-- 回形针 -->
-            <g transform="translate(336 470) rotate(32)" fill="none" stroke="#B8C0C8" stroke-width="6" stroke-linecap="round">
-              <path d="M0 0V-70a14 14 0 0 1 28 0V20a22 22 0 0 1-44 0V-56"/>
-            </g>
-            <!-- 小番茄 -->
-            <g transform="translate(352 660)">
-              <circle r="40" fill="#EA6248"/><ellipse cx="-13" cy="-12" rx="10" ry="6" fill="#F59A86" transform="rotate(-35)"/>
-              <path d="M0-38l7-12 4 12 13-4-8 11 12 6-14 2 2 13-9-9-8 10-1-13-13 2 9-9-10-8 13-1-3-12z" fill="#7FAE5C"/>
-            </g>
-            <!-- 地上的草和小石子 -->
-            <g fill="#BFD6A6">
-              <path d="M70 720c4-26 6-40 14-54-2 20-2 36 0 54z"/><path d="M92 720c-2-22 2-34 10-46-2 18 0 30 2 46z"/>
-              <path d="M240 720c4-20 8-30 16-42-2 16-2 28 0 42z"/><path d="M262 720c-2-16 0-26 8-36-2 14 0 24 2 36z"/>
-            </g>
-            <circle cx="150" cy="704" r="7" fill="#E5D8C4"/><circle cx="168" cy="710" r="4" fill="#E5D8C4"/>
-            <circle cx="300" cy="704" r="5" fill="#E5D8C4"/>
-          </g>
-        </svg>
+        <div class="world-in" id="world">
+          <div class="note n1" style="--paper:#FFF4C2"><b>招聘</b><strong>潮玩发明家</strong><span>会用瓶盖优先</span></div>
+          <div class="note n2" style="--paper:#DDEFFF"><b>急招</b><strong>海城浪人</strong><span>水洼也算海</span></div>
+          <div class="note n5" style="--paper:#EDE3FF"><b>？？？</b><strong>梦境修复师</strong><span>夜班 · 保密</span></div>
+          <div class="note n6" style="--paper:#FFE3E7"><b>急招</b><strong>邪修老吃家</strong><span>试吃不限量</span></div>
+          <div class="note n7" style="--paper:#FFF9EC"><b>招聘</b><strong>局部天气顾问</strong><span>负责头顶一小块</span></div>
+        </div>
       </div>
       <div class="head">
         <p class="series-tag">数字生命盲盒</p>
@@ -76,6 +44,9 @@
       </div>
       <div class="wheel" id="wheel" tabindex="0" role="listbox" aria-label="激活卡转轮，左右拨动选择">
         <div class="runner" aria-hidden="true">
+          <!-- 尺子上方、秃秃两侧的两张便签 -->
+          <div class="note n3" style="--paper:#E4F3D6"><b>招聘</b><strong>徒步山友</strong><span>绿化带就是无人区</span></div>
+          <div class="note n4" style="--paper:#FFFFFF"><b>招聘</b><strong>农场主理人</strong><span>种好一颗小番茄</span></div>
           <div class="ruler" id="ruler"><span>cm</span></div>
           <div class="tutu" id="tutu">
             <div class="tutu-body">

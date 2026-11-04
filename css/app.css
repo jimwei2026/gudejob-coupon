@@ -529,3 +529,43 @@ p, h1, h2 { margin: 0; }
 @keyframes spark { 0% { opacity: 0; transform: scale(0) rotate(0); } 30% { opacity: 1; transform: scale(var(--s, 1)) rotate(40deg); } 100% { opacity: 0; transform: translateY(-36px) scale(.3) rotate(120deg); } }
 .result-card-wrap { position: relative; display: block; flex: 0 0 auto; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(30, 27, 24, .14); }
 .result-card-wrap .result-card { display: block; box-shadow: none; border-radius: 0; }
+
+/* ---------- 背景：招聘栏 ---------- */
+.world {
+  background-color: #E6C79A;
+  background-image:
+    radial-gradient(120% 90% at 50% 42%, rgba(255, 246, 230, .55) 0%, rgba(255, 246, 230, .12) 60%, rgba(122, 90, 53, .2) 100%),
+    radial-gradient(circle at 20% 30%, #C9A06A 0 1px, transparent 1.6px),
+    radial-gradient(circle at 70% 65%, #F3DDB7 0 1px, transparent 1.6px),
+    radial-gradient(circle at 45% 85%, #C29665 0 1.2px, transparent 1.8px),
+    radial-gradient(circle at 85% 15%, #D2AB76 0 1.4px, transparent 2px);
+  background-size: 100% 100%, 23px 23px, 31px 31px, 17px 17px, 37px 37px;
+}
+.world-in { position: absolute; inset: 0; will-change: transform; }
+.note {
+  position: absolute; width: 98px; height: 80px; padding: 16px 10px 8px;
+  display: grid; align-content: start; gap: 1px;
+  background: var(--paper, #FFF4C2); border-radius: 3px;
+  box-shadow: 3px 5px 0 rgba(122, 90, 53, .16), 0 1px 2px rgba(122, 90, 53, .2);
+  font-family: var(--font); line-height: 1.25;
+}
+/* 图钉 */
+.note::before {
+  content: ""; position: absolute; left: 50%; top: 5px; width: 11px; height: 11px; margin-left: -5.5px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #FF8592 0 18%, #D1001F 20%);
+  box-shadow: 1px 2px 2px rgba(92, 65, 38, .35);
+}
+.note b { font-size: 11px; font-weight: 800; color: #C8102E; letter-spacing: .12em; }
+.note strong { font-size: 13px; font-weight: 900; color: #3B2C1F; white-space: nowrap; }
+.note span { font-size: 10px; font-weight: 600; color: #7A6652; white-space: nowrap; }
+/* 左边的便签字靠右，右边的靠左，露在屏幕里的那半边能读到。
+   上方两张缩在角落，不压标题；中间几张在尺子两侧和卡片后面露出一截 */
+.note.n1, .note.n3, .note.n6 { text-align: right; }
+.n1 { left: -36px; top: -8px; transform: rotate(-9deg); }
+.n2 { right: -36px; top: -6px; transform: rotate(8deg); }
+.runner .note { height: 62px; width: 94px; padding-top: 15px; bottom: 21px; }
+.n3 { left: -18px; transform: rotate(-4deg); }
+.n4 { right: -18px; transform: rotate(5deg); }
+.n5 { right: -18px; top: 56%; transform: rotate(4deg); }
+.n6 { left: -12px; bottom: -26px; transform: rotate(6deg); }
+.n7 { right: -12px; bottom: -24px; transform: rotate(-7deg); }
