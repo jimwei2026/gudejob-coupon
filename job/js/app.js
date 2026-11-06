@@ -173,6 +173,9 @@
       return true;
     });
   }
+  // 公司头像：还没录用时是 Sowii 标志；刮开录用后换成这个岗位对应的角色卡
+  function coLogo(i) { return S.status(i) >= 2 ? 'assets/cards/' + S.idAt(i) + '.jpg' : 'assets/brand/sowii.jpg'; }
+
   function hotPos() { for (var i = 0; i < S.size; i++) if (!S.status(i)) return i; return -1; }
 
   function jobCard(i, hot) {
@@ -188,7 +191,7 @@
     b.innerHTML =
       '<span class="job-r1"><span class="job-title">' + esc(jobTitle(i)) + '</span>' +
         (hot ? '<span class="tag-hot">急招</span>' : '') + '<span class="fill"></span>' + right + '</span>' +
-      '<span class="job-r2"><img alt="" src="assets/cards/' + (hired ? ch.id : 'back') + '.jpg">菇的JOB! 4cm 科技 · 潮玩</span>' +
+      '<span class="job-r2"><img alt="" src="' + coLogo(i) + '">菇的JOB! 4cm 科技 · 潮玩</span>' +
       '<span class="tags">' + job.tags.map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</span>' +
       '<span class="job-r4"><span class="ava sm"><img alt="" src="assets/tutu/front.png"></span>' +
         '<span class="hr-n">秃秃 · HR</span>' + state + '<span class="fill"></span><span class="muted">' + loc + '</span></span>';
@@ -253,6 +256,7 @@
     $('d-tags').innerHTML = job.tags.map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('');
     $('d-duties').innerHTML = job.duties.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
     $('d-reqs').innerHTML = job.reqs.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
+    $('d-co-img').src = coLogo(i);
     var fav = S.isFav(i);
     ['d-fav', 'd-fav2'].forEach(function (id) { $(id).setAttribute('aria-pressed', fav ? 'true' : 'false'); });
     $('d-fav').setAttribute('aria-label', fav ? '取消收藏' : '收藏这个岗位');
@@ -502,10 +506,9 @@
   }
 
   // ---------- 录用通知书（领券） ----------
-  // 拿到 Offer：秃秃兴奋时的口头禅「嘟嘟！」，第二声更高
+  // 拿到 Offer：用户提供的秃秃原声（source/拿到offer.mp3），原声偏响，音量压低一点
   function duDu() {
-    GJ.audio.play('du', { rate: 1.06, gain: 0.85 });
-    setTimeout(function () { GJ.audio.play('du', { rate: 1.26, gain: 0.85 }); }, 140);
+    GJ.audio.play('offer', { gain: 0.75 });
   }
 
   function goOffer(i) {
@@ -656,8 +659,8 @@
     var bar = j.querySelector('.jump-bar i');
     bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = '';
     syncInert();
-    // 领券确认：秃秃一声高一点的「嘟」
-    GJ.audio.play('du', { rate: 1.19, gain: 0.85 });
+    // 领券确认：和刮工牌同一段秃秃原声（source/刮刮乐.mp3），原速不变调
+    GJ.audio.play('du', { gain: 0.9 });
     GJ.audio.buzz(20, 0);
     jumpTimers.push(setTimeout(function () { window.location.href = url; }, 1000));
     // 3 秒后页面还在，说明没有唤起 App，给兜底
