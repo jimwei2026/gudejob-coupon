@@ -134,6 +134,12 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
   transition: transform .15s var(--ease-out), background .2s;
 }
 .job:active { transform: scale(.99); background: #FBFAF8; }
+.job { position: relative; }
+/* 整卡的透明点击层（进职位详情）；公司那一行浮在它上面，单独可点 */
+.job-hit { position: absolute; inset: 0; z-index: 1; border-radius: 12px; }
+.job-hit:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.job-co { position: relative; z-index: 2; align-self: flex-start; padding: 13px 8px 13px 0; margin: -13px 0; border-radius: 8px; text-align: left; }
+.job-co:active { opacity: .6; }
 .job-r1, .job-r2, .job-r4 { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .job-title { font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .job-r2 { font-size: 13px; color: var(--ink-2); }
@@ -244,7 +250,40 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .d-co img { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex: 0 0 auto; }
 .co-name { font-size: 14px; font-weight: 700; }
 .co-sub { font-size: 12px; color: var(--ink-2); }
-.d-addr { margin-top: 16px; font-size: 13px; color: var(--ink-2); }
+.d-addr { margin-top: 16px; font-size: 13px; color: var(--ink-2); display: flex; align-items: flex-start; line-height: 1.5; }
+.d-addr svg { flex: 0 0 auto; margin-top: 1px; }
+.d-addr b { color: var(--ink); font-weight: 600; }
+/* 岗位介绍：策划里这个角落的故事 */
+.d-intro { background: var(--paper); border-radius: 10px; padding: 10px 12px; font-size: 14px; line-height: 1.7; color: var(--text); }
+.co-slogan { font-size: 12px; color: var(--ink-2); margin-top: 2px; }
+.d-co { width: 100%; text-align: left; padding: 6px 0; border-radius: 12px; }
+.d-co:active { background: var(--bg); }
+.d-co-text { flex: 1; display: grid; gap: 2px; min-width: 0; }
+.d-co .co-name, .d-co .co-sub, .d-co .co-slogan { display: block; }
+.d-co .chev { flex: 0 0 auto; }
+
+/* 公司介绍卡片：Sowii 品牌手册「我们是谁」 */
+.sheet.co-sheet { text-align: left; justify-items: stretch; gap: 14px; }
+.co-sheet .grab { justify-self: center; }
+.co-head { display: flex; align-items: center; gap: 12px; }
+.co-head img { width: 52px; height: 52px; border-radius: 12px; flex: 0 0 auto; }
+.co-head h2 { font-size: 20px; font-weight: 800; }
+.co-pron { font-size: 12px; color: var(--ink-2); }
+.co-body { display: grid; gap: 10px; font-size: 14px; line-height: 1.7; color: var(--text); }
+.co-lead { font-size: 16px; font-weight: 700; line-height: 1.5; color: var(--ink); }
+.co-name-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.co-name-list li { background: var(--paper); border-radius: 10px; padding: 8px 4px; display: grid; gap: 2px; text-align: center; }
+.co-name-list b { font-size: 12px; color: var(--red-ink); word-break: break-word; }
+.co-name-list span { font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+.co-quote { font-size: 13px; color: var(--ink-2); text-align: center; }
+.co-mv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.co-mv div { border: 1px solid var(--line-2); border-radius: 10px; padding: 10px; display: grid; gap: 2px; }
+.co-mv h3, .co-h { font-size: 13px; font-weight: 700; color: var(--ink); }
+.co-mv p { font-size: 13px; line-height: 1.5; }
+.co-values { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.co-values li { display: flex; gap: 10px; align-items: baseline; }
+.co-values b { flex: 0 0 auto; font-size: 13px; color: var(--ink); background: var(--yellow-2); border-radius: 6px; padding: 1px 8px; }
+.co-values span { font-size: 13px; line-height: 1.6; }
 .d-foot { flex: 0 0 auto; display: flex; align-items: center; gap: 12px; padding: 8px 16px calc(12px + var(--sab)); border-top: 1px solid var(--line); background: var(--card); }
 .d-foot .btn { flex: 1; }
 .fav-col { width: 56px; min-height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; flex: 0 0 auto; }
@@ -329,6 +368,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .l-head p { font-size: 14px; line-height: 1.6; }
 .l-fields { display: grid; grid-template-columns: 64px minmax(0, 1fr); row-gap: 6px; font-size: 13px; padding-right: 84px; }
 .l-fields dt { color: var(--ink-2); }
+.l-note { font-size: 12px; line-height: 1.5; color: var(--ink-2); margin-top: -6px; }
 .seal {
   position: absolute; right: 22px; top: 122px; width: 72px; height: 72px; border-radius: 50%;
   border: 2px solid var(--red); color: var(--red);
@@ -582,7 +622,8 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
   .btn:not(:disabled):hover, .ch-btn:hover, .reply.primary:hover { background: #2E2A26; }
   .btn.soft:not(:disabled):hover, .reply:not(.primary):hover { background: rgba(30, 27, 24, .12); }
   .btn.light:hover { background: #F3EEE7; }
-  .job:hover, .stat:hover, .share-cta:hover { background: #FBFAF8; }
+  .job:hover, .stat:hover, .share-cta:hover, .d-co:hover { background: #FBFAF8; }
+  .job-co:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
   .msg-row:hover, .row:hover { background: #FBFAF8; }
   .icon-btn:not(.dark):hover { background: var(--bg); }
   .icon-btn.dark:hover, .pv-speed:hover { background: rgba(255, 255, 255, .24); }

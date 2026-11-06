@@ -125,6 +125,7 @@
   function setMuted(m) {
     GJ.audio.setMuted(m);
     GJ.player.setMuted(m);
+    GJ.bgm.setMuted(m);
     S.setMuted(m);
     var b = $('btn-mute');
     b.setAttribute('aria-pressed', m ? 'true' : 'false');
@@ -180,23 +181,33 @@
 
   function jobCard(i, hot) {
     var ch = chAt(i), st = S.status(i), hired = st >= 2, job = ch.job;
-    var b = document.createElement('button');
-    b.type = 'button';
+    // 整张卡片由一层透明按钮负责「进详情」；公司那一行是单独的按钮，点它弹公司介绍（按钮里不能再套按钮）
+    var b = document.createElement('div');
     b.className = 'job' + (hired ? ' is-hired' : '');
     var right = hired ? '<span class="tag-dark">已录用</span>' : '<span class="salary">' + esc(job.salary) + '</span>';
     var state = st === 0 ? '<span class="active"><i></i>刚刚活跃</span>'
       : st === 1 ? '<span class="st-wait">工牌待刮开</span>' : '<span class="muted">已沟通</span>';
-    // 每个岗位自己的工作地点和距离（「附近」就是按这个距离排的）
-    var loc = esc(job.place) + ' · ' + fmtDist(job.dist);
+    // 每个岗位自己的工作地点和距离（「附近」就是按这个距离排的）；隐藏款刮开后才显示真实场景
+    var loc = esc(hired ? job.scene : job.place) + ' · ' + fmtDist(job.dist);
+    var label = jobTitle(i) + '，' + (hired ? '已录用' : job.salary) + '，' + (hired ? job.scene : job.place);
     b.innerHTML =
+      '<button type="button" class="job-hit" aria-label="' + esc(label) + '"></button>' +
       '<span class="job-r1"><span class="job-title">' + esc(jobTitle(i)) + '</span>' +
         (hot ? '<span class="tag-hot">急招</span>' : '') + '<span class="fill"></span>' + right + '</span>' +
-      '<span class="job-r2"><img alt="" src="' + coLogo(i) + '">菇的JOB! 4cm 科技 · 潮玩</span>' +
+      '<button type="button" class="job-r2 job-co" aria-label="查看公司介绍：我们是谁"><img alt="" src="' + coLogo(i) + '">菇的JOB! 4cm 科技 · 潮玩</button>' +
       '<span class="tags">' + job.tags.map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</span>' +
       '<span class="job-r4"><span class="ava sm"><img alt="" src="assets/tutu/front.png"></span>' +
         '<span class="hr-n">秃秃 · HR</span>' + state + '<span class="fill"></span><span class="muted">' + loc + '</span></span>';
-    b.addEventListener('click', function () { openDetail(i); });
+    b.querySelector('.job-hit').addEventListener('click', function () { openDetail(i); });
+    b.querySelector('.job-co').addEventListener('click', openCompany);
     return b;
+  }
+
+  // 公司介绍卡片（Sowii 品牌手册「我们是谁」），从底部弹出，不跳页面
+  function openCompany() {
+    openSheet('company');
+    var body = $('sheet-company');
+    body.scrollTop = 0;
   }
 
   function renderJobs() {
@@ -256,6 +267,8 @@
     $('d-tags').innerHTML = job.tags.map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('');
     $('d-duties').innerHTML = job.duties.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
     $('d-reqs').innerHTML = job.reqs.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
+    $('d-intro').textContent = job.intro || '';
+    $('d-scene').textContent = st >= 2 ? job.scene : job.place;
     $('d-co-img').src = coLogo(i);
     var fav = S.isFav(i);
     ['d-fav', 'd-fav2'].forEach(function (id) { $(id).setAttribute('aria-pressed', fav ? 'true' : 'false'); });
@@ -324,7 +337,8 @@
     $('cf-label').textContent = waiting ? '秃秃正在输入…（点聊天区可跳过）' : '选一句回复秃秃';
     if (waiting) return;
     var st = S.status(i), list;
-    if (st <= 1) list = [['刮开工牌', true, function () { openScratch(i); }], ['换个岗位看看', false, backToJobs]];
+    // 第 4 项为 true：这个按钮自己有声音（打开刮工牌会「唰」一声），不再播点击声
+    if (st <= 1) list = [['刮开工牌', true, function () { openScratch(i); }, true], ['换个岗位看看', false, backToJobs]];
     else if (st === 2) list = [['看 TA 的工作日常', true, function () { openPV(i, false); }], [C.chat.want, false, function () { requestOffer(i); }]];
     else list = [['查看 Offer', true, function () { goOffer(i); }], ['换个岗位看看', false, backToJobs]];
     list.forEach(function (r) {
@@ -332,6 +346,7 @@
       b.type = 'button';
       b.className = 'reply' + (r[1] ? ' primary' : '');
       b.textContent = r[0];
+      if (r[3]) b.setAttribute('data-nosfx', '');
       b.addEventListener('click', r[2]);
       box.appendChild(b);
     });
@@ -495,12 +510,15 @@
     var ch = chAt(i);
     GJ.audio.unlock();
     var toOffer = fromOffer ? null : function () { requestOffer(i); };
-    nav.push('player', function () { GJ.player.close(); });
+    // 看 PV 时背景音乐让位给视频，关掉播放器再接着放
+    var done = function (then) { return function () { GJ.bgm.duck(false); nav.dismissed('player', then); }; };
+    GJ.bgm.duck(true);
+    nav.push('player', function () { GJ.player.close(); GJ.bgm.duck(false); });
     GJ.player.open(ch, {
       strip: fromOffer ? null : stripText(),
-      onBack: function () { nav.dismissed('player'); },
-      onSkip: function () { nav.dismissed('player', toOffer); },
-      onEnded: function () { nav.dismissed('player', toOffer); },
+      onBack: done(null),
+      onSkip: done(toOffer),
+      onEnded: done(toOffer),
     });
     syncInert();
   }
@@ -530,6 +548,7 @@
     $('o-fig').alt = ch.name + '实物照';
     $('o-role').textContent = '「' + ch.name + '」的主人';
     $('o-salary').textContent = ch.job.salary;
+    $('o-gift').textContent = ch.job.gift;
     $('o-seal-2').textContent = ch.hidden ? '特别录用' : '人事部';
     $('o-seal').setAttribute('aria-label', ch.hidden ? '菇的JOB! 特别录用 印章' : '菇的JOB! 人事部 印章');
     $('o-amount').textContent = cp.amount;
@@ -859,9 +878,21 @@
 
   // ---------- 绑定 ----------
   function bind() {
-    // 第一次点屏幕：解锁声音、在历史里垫一步
-    ['pointerdown', 'keydown'].forEach(function (type) {
-      document.addEventListener(type, function () { nav.arm(); GJ.audio.unlock(); }, true);
+    // 第一次点屏幕：解锁声音、开始背景音乐、在历史里垫一步
+    ['pointerdown', 'keydown', 'click'].forEach(function (type) {
+      document.addEventListener(type, function () { nav.arm(); GJ.audio.unlock(); GJ.bgm.start(); }, true);
+    });
+    // 点按钮、岗位卡、消息时轻轻「啵」一声。自己有专属声音的（领券、刮工牌）标了 data-nosfx，不重复播
+    document.addEventListener('click', function (e) {
+      var el = e.target.closest && e.target.closest('button, .job, .msg-row');
+      if (!el || el.disabled || el.closest('[data-nosfx]') || el.closest('#player')) return;
+      GJ.audio.play('tap', { gain: 0.5, rate: 0.95 + Math.random() * 0.1 });
+    }, true);
+    $('sw-bgm').addEventListener('click', function () {
+      var on = !S.bgmOn();
+      S.setBgm(on);
+      GJ.bgm.setEnabled(on);
+      $('sw-bgm').setAttribute('aria-checked', on ? 'true' : 'false');
     });
 
     $('btn-home').addEventListener('click', function () {
@@ -886,6 +917,7 @@
     $('d-fav').addEventListener('click', toggleFav);
     $('d-fav2').addEventListener('click', toggleFav);
     $('d-share').addEventListener('click', share);
+    $('d-co').addEventListener('click', openCompany);
     $('d-chat').addEventListener('click', function () { openChat(ui.pos); });
 
     $('sc-close').addEventListener('click', function () { nav.back(); });
@@ -989,6 +1021,8 @@
       onOffer: goOffer,
     });
     setMuted(S.muted());
+    GJ.bgm.setEnabled(S.bgmOn());
+    $('sw-bgm').setAttribute('aria-checked', S.bgmOn() ? 'true' : 'false');
     readInvite();
     renderRules();
     makeBurst();

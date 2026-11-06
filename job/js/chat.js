@@ -17,7 +17,7 @@
   }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   function clock(ms) { var d = new Date(ms || Date.now()); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
-  function fill(s, ch) { return s.replace(/\{name\}/g, ch.name); }
+  function fill(s, ch) { return s.replace(/\{name\}/g, ch.name).replace(/\{scene\}/g, ch.job.scene); }
 
   var ME_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>';
   var PLAY_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>';
@@ -82,6 +82,7 @@
       var pill = node('span', 'm-card-pill'); pill.innerHTML = HAND_SVG; pill.appendChild(node('span', null, '点开刮工牌'));
       b.appendChild(pill);
       b.setAttribute('aria-label', '打开工牌，刮开看看是谁');
+      b.setAttribute('data-nosfx', '');   // 打开刮工牌自己有声音
     }
     b.addEventListener('click', function () {
       if (GJ.store.status(pos) >= 2) handlers.onVideo(pos); else handlers.onCard(pos);
@@ -142,6 +143,7 @@
         perk.appendChild(node('em', null, '¥' + C.coupon.amount));
         perk.appendChild(document.createTextNode(' ' + C.coupon.name));
         body.appendChild(perk);
+        body.appendChild(node('span', 'mo-perk', '入职礼物：' + ch.job.gift));
         var foot = node('span', 'mo-foot');
         foot.appendChild(node('span', null, '查看 Offer'));
         var chev = node('span', 'chev'); chev.innerHTML = CHEV_SVG; foot.appendChild(chev);
