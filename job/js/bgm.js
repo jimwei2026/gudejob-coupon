@@ -1,6 +1,6 @@
 /*
  * 背景音乐：Mixkit「Owies Ukulele」（来源见 source/mixkit/ATTRIBUTION.md），很轻的铺底。
- * 音量已经做进文件里（-27 LUFS），因为 iPhone 的 Safari 不允许网页调 <audio> 的音量。
+ * 音量已经做进文件里（-33 LUFS），因为 iPhone 的 Safari 不允许网页调 <audio> 的音量。
  * 第一次点屏幕后才开始加载和播放（浏览器只允许用户点过之后出声，也不拖慢首屏）；
  * 静音、关掉背景音乐、看 PV、切到后台时暂停，条件恢复后接着放。
  */
@@ -14,7 +14,7 @@
     el.src = SRC;
     el.loop = true;
     el.preload = 'auto';
-    el.volume = 0.8;          // 电脑上再轻一点；iPhone 会忽略这个值
+    el.volume = 0.6;          // 电脑上再轻一点；iPhone 会忽略这个值
     el.setAttribute('playsinline', '');
     return el;
   }

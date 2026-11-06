@@ -181,7 +181,7 @@
 
   function jobCard(i, hot) {
     var ch = chAt(i), st = S.status(i), hired = st >= 2, job = ch.job;
-    // 整张卡片由一层透明按钮负责「进详情」；公司那一行是单独的按钮，点它弹公司介绍（按钮里不能再套按钮）
+    // 整张卡片由一层透明按钮负责「进详情」。首页只做信息展示：公司那一行不单独响应，点到也是进详情
     var b = document.createElement('div');
     b.className = 'job' + (hired ? ' is-hired' : '');
     var right = hired ? '<span class="tag-dark">已录用</span>' : '<span class="salary">' + esc(job.salary) + '</span>';
@@ -194,16 +194,21 @@
       '<button type="button" class="job-hit" aria-label="' + esc(label) + '"></button>' +
       '<span class="job-r1"><span class="job-title">' + esc(jobTitle(i)) + '</span>' +
         (hot ? '<span class="tag-hot">急招</span>' : '') + '<span class="fill"></span>' + right + '</span>' +
-      '<button type="button" class="job-r2 job-co" aria-label="查看公司介绍：我们是谁"><img alt="" src="' + coLogo(i) + '">菇的JOB! 4cm 科技 · 潮玩</button>' +
+      '<span class="job-r2"><img alt="" src="' + coLogo(i) + '">菇的JOB! 4cm 科技 · 潮玩</span>' +
       '<span class="tags">' + job.tags.map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</span>' +
       '<span class="job-r4"><span class="ava sm"><img alt="" src="assets/tutu/front.png"></span>' +
         '<span class="hr-n">秃秃 · HR</span>' + state + '<span class="fill"></span><span class="muted">' + loc + '</span></span>';
     b.querySelector('.job-hit').addEventListener('click', function () { openDetail(i); });
-    b.querySelector('.job-co').addEventListener('click', openCompany);
     return b;
   }
 
-  // 公司介绍卡片（Sowii 品牌手册「我们是谁」），从底部弹出，不跳页面
+  // 秃秃 HR 档案（品牌手册「小蘑菇秃秃」改写），点职位详情的 HR 名片、聊天头部或聊天里的头像时弹出
+  function openHr() {
+    openSheet('hr');
+    $('sheet-hr').scrollTop = 0;
+  }
+
+  // 公司介绍卡片（Sowii 品牌手册「我们是谁」），只在职位详情里点公司卡时从底部弹出，不跳页面
   function openCompany() {
     openSheet('company');
     var body = $('sheet-company');
@@ -918,6 +923,8 @@
     $('d-fav2').addEventListener('click', toggleFav);
     $('d-share').addEventListener('click', share);
     $('d-co').addEventListener('click', openCompany);
+    $('d-hr').addEventListener('click', openHr);
+    $('c-who').addEventListener('click', openHr);
     $('d-chat').addEventListener('click', function () { openChat(ui.pos); });
 
     $('sc-close').addEventListener('click', function () { nav.back(); });
@@ -1019,6 +1026,7 @@
       onCard: openScratch,
       onVideo: function (i) { openPV(i, false); },
       onOffer: goOffer,
+      onHr: openHr,
     });
     setMuted(S.muted());
     GJ.bgm.setEnabled(S.bgmOn());

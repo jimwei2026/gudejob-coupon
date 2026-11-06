@@ -135,11 +135,9 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 }
 .job:active { transform: scale(.99); background: #FBFAF8; }
 .job { position: relative; }
-/* 整卡的透明点击层（进职位详情）；公司那一行浮在它上面，单独可点 */
+/* 整卡的透明点击层（进职位详情） */
 .job-hit { position: absolute; inset: 0; z-index: 1; border-radius: 12px; }
 .job-hit:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-.job-co { position: relative; z-index: 2; align-self: flex-start; padding: 13px 8px 13px 0; margin: -13px 0; border-radius: 8px; text-align: left; }
-.job-co:active { opacity: .6; }
 .job-r1, .job-r2, .job-r4 { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .job-title { font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .job-r2 { font-size: 13px; color: var(--ink-2); }
@@ -269,21 +267,37 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .co-head img { width: 52px; height: 52px; border-radius: 12px; flex: 0 0 auto; }
 .co-head h2 { font-size: 20px; font-weight: 800; }
 .co-pron { font-size: 12px; color: var(--ink-2); }
-.co-body { display: grid; gap: 10px; font-size: 14px; line-height: 1.7; color: var(--text); }
-.co-lead { font-size: 16px; font-weight: 700; line-height: 1.5; color: var(--ink); }
-.co-name-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.co-name-list li { background: var(--paper); border-radius: 10px; padding: 8px 4px; display: grid; gap: 2px; text-align: center; }
-.co-name-list b { font-size: 12px; color: var(--red-ink); word-break: break-word; }
-.co-name-list span { font-size: 12px; line-height: 1.4; color: var(--ink-2); }
-.co-quote { font-size: 13px; color: var(--ink-2); text-align: center; }
-.co-mv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.co-mv div { border: 1px solid var(--line-2); border-radius: 10px; padding: 10px; display: grid; gap: 2px; }
-.co-mv h3, .co-h { font-size: 13px; font-weight: 700; color: var(--ink); }
-.co-mv p { font-size: 13px; line-height: 1.5; }
+.co-lead { background: var(--paper); border-radius: 12px; padding: 14px 16px; font-size: 17px; font-weight: 700; line-height: 1.55; color: var(--ink); }
+.co-values-wrap { display: grid; gap: 10px; }
+.co-h { font-size: 15px; font-weight: 700; color: var(--ink); display: grid; gap: 2px; }
+.co-h span { font-size: 12px; font-weight: 400; color: var(--ink-2); }
 .co-values { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.co-values li { display: flex; gap: 10px; align-items: baseline; }
-.co-values b { flex: 0 0 auto; font-size: 13px; color: var(--ink); background: var(--yellow-2); border-radius: 6px; padding: 1px 8px; }
-.co-values span { font-size: 13px; line-height: 1.6; }
+.co-values li { display: flex; gap: 12px; align-items: center; border: 1px solid var(--line-2); border-radius: 12px; padding: 10px 12px; }
+.co-values b { flex: 0 0 auto; font-size: 13px; color: var(--ink); background: var(--yellow-2); border-radius: 8px; padding: 4px 10px; }
+.co-values span { font-size: 14px; line-height: 1.6; color: var(--text); }
+
+/* 秃秃 HR 档案：依据品牌手册「小蘑菇秃秃」改写成 HR 名片 */
+.sheet.hr-sheet { text-align: left; justify-items: stretch; gap: 14px; }
+.hr-sheet .grab { justify-self: center; }
+.hr-hero { display: flex; align-items: center; gap: 8px; }
+.hr-hero-text { flex: 1; min-width: 0; display: grid; gap: 6px; }
+.hr-badge { justify-self: start; font-size: 12px; font-weight: 700; color: var(--chip); background: var(--chip-bg); border-radius: 8px; padding: 2px 8px; }
+.hr-sheet h2 { font-size: 20px; font-weight: 800; line-height: 1.35; }
+.hr-en { font-size: 12px; color: var(--ink-2); }
+.hr-photo { width: 96px; height: 96px; object-fit: contain; flex: 0 0 auto; }
+.hr-motto { font-size: 16px; color: var(--ink-2); }
+.hr-fields { display: grid; grid-template-columns: 64px minmax(0, 1fr); row-gap: 10px; font-size: 14px; border-top: 1px solid var(--line); padding-top: 14px; }
+.hr-fields dt { color: var(--ink-2); }
+.hr-fields dd { color: var(--ink); }
+/* 能点开 HR 档案的地方：职位详情的 HR 名片、聊天头部、聊天里秃秃的头像 */
+.hr-line { width: 100%; text-align: left; border-radius: 12px; }
+.hr-line .hr-who { flex: 1; display: grid; min-width: 0; }
+.hr-line .hr-name, .hr-line .hr-org { display: block; }
+.hr-line .hr-name { display: flex; }
+.hr-line .chev { flex: 0 0 auto; }
+.hr-line:active, .chat-who:active { opacity: .7; }
+.ava-btn { width: 44px; height: 44px; margin: -4px; padding: 4px; flex: 0 0 auto; border-radius: 50%; display: inline-grid; place-items: center; }
+.ava-btn .ava { pointer-events: none; }
 .d-foot { flex: 0 0 auto; display: flex; align-items: center; gap: 12px; padding: 8px 16px calc(12px + var(--sab)); border-top: 1px solid var(--line); background: var(--card); }
 .d-foot .btn { flex: 1; }
 .fav-col { width: 56px; min-height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; flex: 0 0 auto; }
@@ -295,6 +309,8 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .chat-who { flex: 1; display: grid; justify-items: center; line-height: 1.3; }
 .chat-who p { font-size: 16px; font-weight: 700; }
 .chat-who span { font-size: 12px; color: var(--ink-2); }
+.chat-who { min-height: 44px; align-content: center; border-radius: 10px; }
+.chat-who .chat-who-name { font-size: 16px; font-weight: 700; color: var(--ink); }
 .chat-job { height: 48px; flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 0 16px; background: var(--card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); min-width: 0; }
 .chat-job b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .chat-job .salary { font-size: 14px; }
@@ -311,7 +327,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .m-sys { align-self: center; font-size: 12px; color: var(--chip); background: #EAE6E0; border-radius: 8px; padding: 4px 10px; text-align: center; }
 .m-row { display: flex; align-items: flex-start; gap: 8px; animation: msg-in .3s var(--ease-out) both; }
 .m-row.me { justify-content: flex-end; }
-.m-row.hr + .m-row.hr .ava { visibility: hidden; }
+.m-row.hr + .m-row.hr .ava-btn { visibility: hidden; }
 @keyframes msg-in { from { opacity: 0; transform: translateY(8px); } }
 .m-col { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
 .bubble { max-width: min(248px, 70vw); padding: 10px 12px; font-size: 14px; line-height: 1.5; word-break: break-word; }
@@ -623,7 +639,6 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
   .btn.soft:not(:disabled):hover, .reply:not(.primary):hover { background: rgba(30, 27, 24, .12); }
   .btn.light:hover { background: #F3EEE7; }
   .job:hover, .stat:hover, .share-cta:hover, .d-co:hover { background: #FBFAF8; }
-  .job-co:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
   .msg-row:hover, .row:hover { background: #FBFAF8; }
   .icon-btn:not(.dark):hover { background: var(--bg); }
   .icon-btn.dark:hover, .pv-speed:hover { background: rgba(255, 255, 255, .24); }

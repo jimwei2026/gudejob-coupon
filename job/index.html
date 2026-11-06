@@ -7,7 +7,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#FFFFFF">
 <title>菇的JOB! 招主人</title>
-<link rel="stylesheet" href="css/app.css?v=202611061739">
+<link rel="stylesheet" href="css/app.css?v=202611061820">
 </head>
 <body>
 <div class="app" id="app">
@@ -118,13 +118,14 @@
       </section>
       <hr>
       <section class="d-hr">
-        <div class="hr-line">
+        <button class="hr-line" id="d-hr" type="button" aria-label="查看秃秃 HR 的档案">
           <span class="ava big"><img src="assets/tutu/front.png" alt=""></span>
-          <div>
-            <p class="hr-name">秃秃 <span class="active"><i></i>刚刚活跃</span></p>
-            <p class="hr-org">菇的JOB! · HR</p>
-          </div>
-        </div>
+          <span class="hr-who">
+            <span class="hr-name">秃秃 <span class="active"><i></i>刚刚活跃</span></span>
+            <span class="hr-org">菇的JOB! · HR</span>
+          </span>
+          <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6"/></svg>
+        </button>
         <p class="d-quote" id="d-quote"></p>
       </section>
       <hr>
@@ -160,7 +161,7 @@
       <button class="icon-btn ghost" type="button" data-back aria-label="返回">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-      <div class="chat-who"><p id="c-name">秃秃</p><span>菇的JOB! · HR</span></div>
+      <button class="chat-who" id="c-who" type="button" aria-label="查看秃秃 HR 的档案"><span class="chat-who-name" id="c-name">秃秃</span><span>菇的JOB! · HR</span></button>
       <span class="icon-spacer"></span>
     </header>
     <div class="chat-job">
@@ -341,28 +342,41 @@
     <div class="grab" aria-hidden="true"></div>
     <div class="co-head">
       <img src="assets/brand/sowii.jpg" alt="Sowii 标志">
-      <div><h2 id="co-title">我们是谁</h2><p class="co-pron">Sowii /soʊ.wiː/ · Sow the world with intelligence and imagination.</p></div>
+      <div><h2 id="co-title">我们是谁</h2><p class="co-pron">Sowii /soʊ.wiː/</p></div>
     </div>
-    <div class="co-body">
-      <p class="co-lead">每一个被喜爱的角色，都值得拥有真实的生命力。</p>
-      <p>Sowii 是一个 AI × IP 驱动的情绪消费品牌。把前沿的 AI 技术，用在创设温暖而治愈人心的 IP 数字生命上。</p>
-      <ul class="co-name-list">
-        <li><b>Sow</b><span>播下种子</span></li>
-        <li><b>Intelligence</b><span>以智慧为土壤</span></li>
-        <li><b>Imagination</b><span>让想象力生根发芽</span></li>
-      </ul>
-      <p class="co-quote">“So with you” —— 如此伴你左右。</p>
-      <div class="co-mv">
-        <div><h3>使命</h3><p>用新技术，创造用户喜爱的产品</p></div>
-        <div><h3>愿景</h3><p>打造全球领先的跨次元情绪体验平台</p></div>
-      </div>
-      <h3 class="co-h">核心价值：充满生命力的陪伴、温暖与治愈</h3>
+    <p class="co-lead">每一个被喜爱的角色，都值得拥有真实的生命力。</p>
+    <section class="co-values-wrap" aria-labelledby="co-h">
+      <h3 class="co-h" id="co-h">核心价值<span>充满生命力的陪伴、温暖与治愈</span></h3>
       <ul class="co-values">
         <li><b>陪伴</b><span>不必说什么，有时在场本身就是答案。</span></li>
         <li><b>温暖</b><span>它对你笑了，你发现自己也在笑。</span></li>
         <li><b>治愈</b><span>面对粗粝的世界，它是你最柔软的角落。</span></li>
       </ul>
+    </section>
+    <div class="actions"><button class="btn" type="button" data-close>知道了</button></div>
+  </div>
+
+  <!-- 秃秃 HR 档案：内容依据 Sowii 品牌手册「我们的 IP · 小蘑菇秃秃」，改写成 HR 名片 -->
+  <div class="sheet hr-sheet" id="sheet-hr" hidden role="dialog" aria-modal="true" aria-labelledby="hr-title">
+    <div class="grab" aria-hidden="true"></div>
+    <div class="hr-hero">
+      <div class="hr-hero-text">
+        <p class="hr-badge">菇的JOB! · HR 档案</p>
+        <h2 id="hr-title">一只闯入人类世界、把万物当玩具的小蘑菇。</h2>
+        <p class="hr-en">A tiny mushroom, loose in the human world.</p>
+      </div>
+      <img class="hr-photo" src="assets/tutu/wave.png" alt="秃秃在挥手">
     </div>
+    <p class="hr-motto">日常寻宝，把平凡酿成奇遇。</p>
+    <dl class="hr-fields">
+      <dt>姓名</dt><dd>秃秃 / Tutu</dd>
+      <dt>职位</dt><dd>菇的JOB! HR，负责给秃秃们找主人</dd>
+      <dt>物种</dt><dd>蘑菇</dd>
+      <dt>身高</dt><dd>4cm</dd>
+      <dt>生日</dt><dd>3 月 10 日</dd>
+      <dt>性格</dt><dd>3–5 岁小孩心智，ENFP</dd>
+      <dt>口头禅</dt><dd>各种语气的「嘟」「嘟嘟」</dd>
+    </dl>
     <div class="actions"><button class="btn" type="button" data-close>知道了</button></div>
   </div>
 
@@ -396,16 +410,16 @@
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </div>
 
-<script src="js/config.js?v=202611061739"></script>
-<script src="js/sfx-data.js?v=202611061739"></script>
-<script src="js/audio.js?v=202611061739"></script>
-<script src="js/bgm.js?v=202611061739"></script>
-<script src="js/store.js?v=202611061739"></script>
-<script src="js/fx.js?v=202611061739"></script>
-<script src="js/scratch.js?v=202611061739"></script>
-<script src="js/player.js?v=202611061739"></script>
-<script src="js/chat.js?v=202611061739"></script>
-<script src="js/share.js?v=202611061739"></script>
-<script src="js/app.js?v=202611061739"></script>
+<script src="js/config.js?v=202611061820"></script>
+<script src="js/sfx-data.js?v=202611061820"></script>
+<script src="js/audio.js?v=202611061820"></script>
+<script src="js/bgm.js?v=202611061820"></script>
+<script src="js/store.js?v=202611061820"></script>
+<script src="js/fx.js?v=202611061820"></script>
+<script src="js/scratch.js?v=202611061820"></script>
+<script src="js/player.js?v=202611061820"></script>
+<script src="js/chat.js?v=202611061820"></script>
+<script src="js/share.js?v=202611061820"></script>
+<script src="js/app.js?v=202611061820"></script>
 </body>
 </html>

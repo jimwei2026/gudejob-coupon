@@ -57,9 +57,15 @@
   // ---------- 单条消息 ----------
   function hrRow(content) {
     var row = node('div', 'm-row hr');
-    var ava = node('span', 'ava');
+    // 点秃秃的头像：弹出 HR 档案
+    var ava = node('button', 'ava-btn');
+    ava.type = 'button';
+    ava.setAttribute('aria-label', '查看秃秃 HR 的档案');
+    ava.addEventListener('click', function () { if (handlers.onHr) handlers.onHr(); });
+    var face = node('span', 'ava');
     var img = node('img'); img.src = 'assets/tutu/front.png'; img.alt = '';
-    ava.appendChild(img);
+    face.appendChild(img);
+    ava.appendChild(face);
     var col = node('div', 'm-col');
     col.appendChild(content);
     row.appendChild(ava); row.appendChild(col);
