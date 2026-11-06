@@ -502,6 +502,12 @@
   }
 
   // ---------- 录用通知书（领券） ----------
+  // 拿到 Offer：秃秃兴奋时的口头禅「嘟嘟！」，第二声更高
+  function duDu() {
+    GJ.audio.play('du', { rate: 1.06, gain: 0.85 });
+    setTimeout(function () { GJ.audio.play('du', { rate: 1.26, gain: 0.85 }); }, 140);
+  }
+
   function goOffer(i) {
     if (S.status(i) < 3) S.advance(i, 3);
     if (nav.top() === 'offer' && ui.offerPos === i) return;
@@ -510,7 +516,7 @@
     $('pg-offer').querySelector('.scroll').scrollTop = 0;
     openPage('pg-offer');
     nav.push('offer', function () { closePage('pg-offer'); });
-    GJ.audio.play('success', { gain: 0.6 });
+    duDu();
     refreshAll();
   }
 
@@ -650,7 +656,8 @@
     var bar = j.querySelector('.jump-bar i');
     bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = '';
     syncInert();
-    GJ.audio.play('success', { gain: 0.8 });
+    // 领券确认：秃秃一声高一点的「嘟」
+    GJ.audio.play('du', { rate: 1.19, gain: 0.85 });
     GJ.audio.buzz(20, 0);
     jumpTimers.push(setTimeout(function () { window.location.href = url; }, 1000));
     // 3 秒后页面还在，说明没有唤起 App，给兜底
