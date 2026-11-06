@@ -167,8 +167,9 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .mine-head h1 { font-size: 20px; font-weight: 800; }
 .mine-head p { font-size: 13px; color: var(--ink-2); }
 .card { background: var(--card); border-radius: 12px; margin: 12px 12px 0; }
-.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 14px 0; }
-.stats div { display: grid; justify-items: center; gap: 2px; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 6px; }
+.stat { display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 64px; border-radius: 10px; }
+.stat:active { background: var(--bg); }
 .stats b { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .stats span { font-size: 12px; color: var(--ink-2); }
 .offers { padding: 16px; display: grid; gap: 12px; }
@@ -355,6 +356,34 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .ch-mark.tmall svg { height: 9px; width: auto; display: block; }
 .o-price { text-align: center; font-size: 12px; color: var(--ink-2); }
 .o-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+
+/* 把 Offer 发给朋友 */
+/* 白底卡片，只有图标用黄色：不和上面黑色的领券按钮抢主次 */
+.share-cta { width: 100%; min-height: 64px; display: flex; align-items: center; gap: 12px; padding: 10px 14px 10px 10px; border-radius: 16px; background: var(--card); color: var(--ink); text-align: left; box-shadow: 0 4px 14px rgba(30, 27, 24, .06); transition: transform .15s var(--ease-out); }
+.share-cta:active { transform: scale(.98); }
+.share-cta-ico { width: 44px; height: 44px; border-radius: 12px; background: var(--yellow); display: grid; place-items: center; flex: 0 0 auto; }
+.share-cta-ico svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.share-cta-txt { flex: 1; display: grid; gap: 2px; min-width: 0; }
+.share-cta-txt b { font-size: 16px; }
+.share-cta-txt span { font-size: 12px; color: var(--ink-2); }
+.share-cta .chev { stroke: var(--ink); }
+.share-sheet { gap: 10px; }
+.poster-wrap { position: relative; height: min(42vh, 380px); aspect-ratio: 720 / 1280; border-radius: 12px; overflow: hidden; background: var(--paper); box-shadow: 0 8px 24px rgba(30, 27, 24, .16); flex: 0 0 auto; }
+.poster-img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; -webkit-touch-callout: default; -webkit-user-select: auto; user-select: auto; }
+.poster-loading { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 10px; font-size: 13px; color: var(--ink-2); padding: 12px; text-align: center; }
+.poster-loading i { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--line-2); border-top-color: var(--ink); animation: spin .8s linear infinite; }
+.poster-tip { font-size: 12px; color: var(--ink-3); }
+.share-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
+.share-actions .btn { width: 100%; height: 48px; }
+.btn.wide { width: 100%; }
+
+/* 朋友通过分享链接打开时，列表顶部的提示 */
+.invite-banner { display: flex; align-items: center; gap: 10px; background: var(--yellow-2); border-radius: 12px; padding: 8px 4px 8px 8px; animation: pop-in .4s var(--ease-out) both; }
+.invite-banner img { width: 52px; height: 52px; object-fit: contain; flex: 0 0 auto; }
+.invite-banner div { flex: 1; display: grid; gap: 2px; min-width: 0; }
+.invite-banner b { font-size: 14px; }
+.invite-banner span { font-size: 12px; color: var(--ticket-ink); }
+.invite-banner .icon-btn svg { width: 18px; height: 18px; }
 .fine { display: grid; justify-items: center; }
 .fine p { font-size: 12px; color: var(--ink-3); text-align: center; }
 
@@ -553,7 +582,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
   .btn:not(:disabled):hover, .ch-btn:hover, .reply.primary:hover { background: #2E2A26; }
   .btn.soft:not(:disabled):hover, .reply:not(.primary):hover { background: rgba(30, 27, 24, .12); }
   .btn.light:hover { background: #F3EEE7; }
-  .job:hover { background: #FBFAF8; }
+  .job:hover, .stat:hover, .share-cta:hover { background: #FBFAF8; }
   .msg-row:hover, .row:hover { background: #FBFAF8; }
   .icon-btn:not(.dark):hover { background: var(--bg); }
   .icon-btn.dark:hover, .pv-speed:hover { background: rgba(255, 255, 255, .24); }

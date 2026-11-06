@@ -39,17 +39,20 @@
     tab: 'jobs', sort: 'rec', filter: 'all',
     pos: -1, chatPos: -1, offerPos: -1,
     sc: null, scPos: -1, scRevealed: false, scHandled: false,
-    stopSparkles: null, jumped: false, leaveOpen: false,
+    stopSparkles: null, jumped: false, leaveOpen: false, invite: null,
   };
 
   // ---------- 图层：最上面那层之外都设成 inert，读屏和键盘不会跑到下面去 ----------
   var LAYERS = ['root', 'pg-detail', 'pg-chat', 'pg-offer', 'scratch-ov', 'player', 'jump'];
   var openSheetEl = null;
+  // 判断一层是不是「打开着」。关闭动画还在播的那一层不算——
+  // 之前播放器淡出的 0.26 秒里还算打开，结果把下面的聊天页一直锁成不可点（看完视频按返回后点不动）
   function layerOpen(id) {
     var el = $(id);
     if (id === 'root') return true;
+    if (id === 'player') return GJ.player.isOpen();
     if (el.hidden) return false;
-    if (id === 'player' || id === 'jump') return true;
+    if (id === 'jump') return true;
     return el.classList.contains('is-in');
   }
   function setInert(el, v) {
@@ -101,6 +104,8 @@
         if (!t.silent && t.close) t.close();
       }
       syncInert();
+      // 关闭动画放完后再核对一次，保证最上面那层一定能点
+      setTimeout(syncInert, 350);
       if (d === -1) { after = null; onExit(); return; }
       run();
     });
@@ -164,6 +169,7 @@
     return idx.filter(function (i) {
       if (ui.filter === 'wait') return S.status(i) < 2;
       if (ui.filter === 'hired') return S.status(i) >= 2;
+      if (ui.filter === 'fav') return S.isFav(i);
       return true;
     });
   }
@@ -177,7 +183,8 @@
     var right = hired ? '<span class="tag-dark">已录用</span>' : '<span class="salary">' + esc(job.salary) + '</span>';
     var state = st === 0 ? '<span class="active"><i></i>刚刚活跃</span>'
       : st === 1 ? '<span class="st-wait">工牌待刮开</span>' : '<span class="muted">已沟通</span>';
-    var loc = ui.sort === 'near' ? esc(job.place) + ' · ' + fmtDist(job.dist) : '4cm 大世界';
+    // 每个岗位自己的工作地点和距离（「附近」就是按这个距离排的）
+    var loc = esc(job.place) + ' · ' + fmtDist(job.dist);
     b.innerHTML =
       '<span class="job-r1"><span class="job-title">' + esc(jobTitle(i)) + '</span>' +
         (hot ? '<span class="tag-hot">急招</span>' : '') + '<span class="fill"></span>' + right + '</span>' +
@@ -194,6 +201,9 @@
     $('f-all').textContent = S.size;
     $('f-wait').textContent = S.size - hired;
     $('f-hired').textContent = hired;
+    var favs = S.favCount();
+    $('f-fav').textContent = favs;
+    $('f-fav-btn').hidden = !favs && ui.filter !== 'fav';
     document.querySelectorAll('.filter').forEach(function (f) {
       f.setAttribute('aria-pressed', f.getAttribute('data-filter') === ui.filter ? 'true' : 'false');
     });
@@ -202,13 +212,14 @@
     });
     var list = $('jobs-list');
     list.innerHTML = '';
+    if (ui.invite) list.appendChild(inviteBanner());
     if (S.allHired() && ui.filter !== 'wait') {
       var ban = document.createElement('div');
       ban.className = 'full-banner';
       ban.innerHTML = '<img alt="" src="assets/tutu/wave.png"><div><b>7 个岗位都招满啦</b><span>洗牌后会重新发布 7 个岗位</span></div>';
       var go = document.createElement('button');
       go.type = 'button'; go.className = 'btn small'; go.textContent = '洗牌，再招一轮';
-      go.addEventListener('click', reshuffle);
+      go.addEventListener('click', askReshuffle);
       ban.appendChild(go);
       list.appendChild(ban);
     }
@@ -217,7 +228,8 @@
     if (!idx.length) {
       var p = document.createElement('p');
       p.className = 'empty';
-      p.textContent = ui.filter === 'hired' ? '还没有录用的岗位，挑一个聊聊吧' : '岗位都录用啦';
+      p.textContent = ui.filter === 'hired' ? '还没有录用的岗位，挑一个聊聊吧'
+        : ui.filter === 'fav' ? '还没有收藏的岗位，在职位详情右上角点星星收藏' : '岗位都录用啦';
       list.appendChild(p);
     }
   }
@@ -253,7 +265,7 @@
     fillDetail();
     renderMine();
     GJ.audio.play('pop', { gain: 0.4 });
-    toast(on ? '已收藏，可以在「我的」里看到' : '已取消收藏');
+    toast(on ? '已收藏，职位列表的「收藏」里能找到' : '已取消收藏');
   }
 
   function share() {
@@ -523,6 +535,99 @@
     } else price.hidden = true;
   }
 
+  // ---------- 把 Offer 发给朋友（拉新） ----------
+  var shareData = { url: null, file: null };
+  function nativeBridge() {
+    // App 如果提供了原生分享（微信好友 / 朋友圈），在这里接：window.SowiiBridge.share({ title, text, url, image })
+    return window.SowiiBridge && typeof window.SowiiBridge.share === 'function' ? window.SowiiBridge : null;
+  }
+
+  function openShare() {
+    var i = ui.offerPos, ch = chAt(i);
+    if (i < 0) return;
+    openSheet('share');
+    var wrap = $('poster-wrap'), img = $('poster-img');
+    var old = wrap.querySelector('canvas');
+    if (old) old.remove();
+    img.hidden = true; img.removeAttribute('src');
+    $('poster-loading').hidden = false;
+    $('poster-loading').querySelector('span').textContent = '海报生成中';
+    $('poster-tip').textContent = '长按图片可以保存，或直接发给朋友';
+    $('s-save').disabled = true;
+    $('s-more').hidden = !(navigator.share || nativeBridge());
+    shareData = { url: null, file: null, ch: ch };
+    GJ.share.poster(ch).then(function (res) {
+      if (shareData.ch !== ch) return;
+      $('poster-loading').hidden = true;
+      if (res.dataURL) {
+        img.src = res.dataURL;
+        img.alt = ch.name + '的录用通知书海报';
+        img.hidden = false;
+        shareData.url = res.dataURL;
+        $('s-save').disabled = false;
+      } else {
+        // 本地文件打开时浏览器不让导出图片：直接显示画好的海报
+        res.canvas.className = 'poster-img';
+        res.canvas.setAttribute('role', 'img');
+        res.canvas.setAttribute('aria-label', ch.name + '的录用通知书海报');
+        wrap.appendChild(res.canvas);
+        $('poster-tip').textContent = '海报已生成；这个环境不能导出图片，可以先复制链接';
+      }
+    }, function () {
+      $('poster-loading').querySelector('span').textContent = '海报没生成出来，可以先复制链接';
+    });
+  }
+
+  function savePoster() {
+    if (!shareData.url) return;
+    var name = '菇的JOB-录用通知书-' + shareData.ch.name + '.jpg';
+    var file = null;
+    try { file = GJ.share.dataURLtoFile(shareData.url, name); } catch (e) { file = null; }
+    // 手机上优先走系统分享面板，里面有「存储图像」，能直接存到相册
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: C.share.title }).catch(function () {});
+      return;
+    }
+    var a = document.createElement('a');
+    a.href = shareData.url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('海报已开始下载；没反应的话，长按图片保存');
+  }
+
+  function copyShare() {
+    var ch = shareData.ch || chAt(ui.offerPos);
+    copyText(GJ.share.text(ch) + ' ' + GJ.share.link(ch), '链接和文案已复制，去发给朋友吧');
+  }
+
+  function moreShare() {
+    var ch = shareData.ch || chAt(ui.offerPos);
+    var payload = { title: C.share.title, text: GJ.share.text(ch), url: GJ.share.link(ch) };
+    var bridge = nativeBridge();
+    if (bridge) { payload.image = shareData.url; bridge.share(payload); return; }
+    if (navigator.share) navigator.share(payload).catch(function () {});
+  }
+
+  // 朋友通过分享链接打开：?from=offer&r=角色 id
+  function readInvite() {
+    var m = /[?&]r=([a-z]+)/.exec(location.search);
+    if (m && CHAR[m[1]] && /[?&]from=offer/.test(location.search)) ui.invite = m[1];
+  }
+
+  function inviteBanner() {
+    var ch = CHAR[ui.invite];
+    var ban = document.createElement('div');
+    ban.className = 'invite-banner';
+    ban.setAttribute('role', 'note');
+    ban.innerHTML = '<img alt="" src="assets/figures/' + ch.id + '.png">' +
+      '<div><b>朋友刚被录用为「' + esc(ch.name) + '」的主人</b><span>你也挑一个岗位聊聊，入职福利同款 ¥' + C.coupon.amount + '</span></div>';
+    var x = document.createElement('button');
+    x.type = 'button'; x.className = 'icon-btn ghost'; x.setAttribute('aria-label', '关闭提示');
+    x.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+    x.addEventListener('click', function () { ui.invite = null; renderJobs(); });
+    ban.appendChild(x);
+    return ban;
+  }
+
   // ---------- 跳转 ----------
   var jumpTimers = [];
   function clearJump() { jumpTimers.forEach(clearTimeout); jumpTimers = []; }
@@ -642,6 +747,9 @@
     $('btn-reshuffle').disabled = !all;
     $('reshuffle-tip').textContent = all ? '7 个岗位都录用啦，可以洗牌了' : '7 个岗位都录用后可用';
   }
+
+  // 洗牌会清空「我的 Offer」和聊天记录，先确认一次
+  function askReshuffle() { if (S.allHired()) openSheet('reshuffle'); }
 
   function reshuffle() {
     if (!S.allHired()) return;
@@ -779,6 +887,11 @@
       if (sc) sc.ready.then(function () { sc.reveal(true); }, function () {});
     });
 
+    $('o-share').addEventListener('click', openShare);
+    $('o-share2').addEventListener('click', openShare);
+    $('s-save').addEventListener('click', savePoster);
+    $('s-copy').addEventListener('click', copyShare);
+    $('s-more').addEventListener('click', moreShare);
     $('o-pv').addEventListener('click', function () { openPV(ui.offerPos, true); });
     $('o-more').addEventListener('click', backToJobs);
     document.querySelectorAll('[data-channel]').forEach(function (b) {
@@ -792,7 +905,17 @@
     });
     $('jump-close').addEventListener('click', hideJump);
 
-    $('btn-reshuffle').addEventListener('click', reshuffle);
+    $('btn-reshuffle').addEventListener('click', askReshuffle);
+    $('rs-go').addEventListener('click', function () { nav.back(reshuffle); });
+    // 「我的」里的三个数字：点进职位列表对应的筛选
+    document.querySelectorAll('.stat').forEach(function (b) {
+      b.addEventListener('click', function () {
+        ui.filter = b.getAttribute('data-goto');
+        switchTab('jobs');
+        renderJobs();
+        $('jobs-list').scrollTop = 0;
+      });
+    });
     document.querySelectorAll('[data-open]').forEach(function (b) {
       b.addEventListener('click', function () { openSheet(b.getAttribute('data-open')); });
     });
@@ -856,6 +979,7 @@
       onOffer: goOffer,
     });
     setMuted(S.muted());
+    readInvite();
     renderRules();
     makeBurst();
     bind();

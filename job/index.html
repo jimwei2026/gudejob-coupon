@@ -7,7 +7,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#FFFFFF">
 <title>菇的JOB! 招主人</title>
-<link rel="stylesheet" href="css/app.css?v=202611061441">
+<link rel="stylesheet" href="css/app.css?v=202611061600">
 </head>
 <body>
 <div class="app" id="app">
@@ -39,6 +39,7 @@
           <button class="filter" type="button" data-filter="all" aria-pressed="true"><span>全部 <b id="f-all">7</b></span></button>
           <button class="filter" type="button" data-filter="wait" aria-pressed="false"><span>待沟通 <b id="f-wait">7</b></span></button>
           <button class="filter" type="button" data-filter="hired" aria-pressed="false"><span>已录用 <b id="f-hired">0</b></span></button>
+          <button class="filter" type="button" data-filter="fav" aria-pressed="false" id="f-fav-btn" hidden><span>收藏 <b id="f-fav">0</b></span></button>
         </div>
       </header>
       <div class="scroll jobs-list" id="jobs-list"></div>
@@ -58,9 +59,9 @@
           <div><h1>人</h1><p>求职状态：随时到岗</p></div>
         </header>
         <section class="card stats" aria-label="求职数据">
-          <div><b id="m-hired">0</b><span>已录用</span></div>
-          <div><b id="m-wait">0</b><span>待沟通</span></div>
-          <div><b id="m-fav">0</b><span>收藏</span></div>
+          <button class="stat" type="button" data-goto="hired"><b id="m-hired">0</b><span>已录用</span></button>
+          <button class="stat" type="button" data-goto="wait"><b id="m-wait">0</b><span>待沟通</span></button>
+          <button class="stat" type="button" data-goto="fav"><b id="m-fav">0</b><span>收藏</span></button>
         </section>
         <section class="card offers" aria-labelledby="m-offers">
           <div class="card-title"><h2 id="m-offers">我的 Offer</h2><span id="m-count">0 / 7</span></div>
@@ -180,7 +181,9 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
       <p class="bar-title" id="o-title">录用通知书</p>
-      <span class="icon-spacer"></span>
+      <button class="icon-btn ghost" id="o-share" type="button" aria-label="把 Offer 发给朋友">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     </header>
     <div class="scroll offer-body">
       <article class="letter" id="letter">
@@ -211,6 +214,11 @@
           <p class="o-price" id="o-price"></p>
         </section>
       </article>
+      <button class="share-cta" id="o-share2" type="button">
+        <span class="share-cta-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></span>
+        <span class="share-cta-txt"><b>把 Offer 发给朋友</b><span>生成录用通知书海报，朋友扫码就能来应聘</span></span>
+        <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6"/></svg>
+      </button>
       <div class="o-actions">
         <button class="btn soft" id="o-pv" type="button">再看一遍工作日常</button>
         <button class="btn soft" id="o-more" type="button">换个岗位看看</button>
@@ -323,17 +331,45 @@
     </div>
   </div>
 
+  <div class="sheet" id="sheet-reshuffle" hidden role="dialog" aria-modal="true" aria-labelledby="rs-title">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 id="rs-title">洗牌，再招一轮？</h2>
+    <p class="sheet-sub">7 个岗位会重新发布，「我的 Offer」和聊天记录会清空；已经领到的券不受影响</p>
+    <div class="actions">
+      <button class="btn" id="rs-go" type="button">洗牌，再招一轮</button>
+      <button class="link" type="button" data-close>先不洗</button>
+    </div>
+  </div>
+
+  <div class="sheet share-sheet" id="sheet-share" hidden role="dialog" aria-modal="true" aria-labelledby="s-title">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 id="s-title">把 Offer 发给朋友</h2>
+    <p class="sheet-sub">朋友扫码就能来应聘，也能领同款入职福利</p>
+    <div class="poster-wrap" id="poster-wrap">
+      <img class="poster-img" id="poster-img" alt="录用通知书海报" hidden>
+      <div class="poster-loading" id="poster-loading"><i></i><span>海报生成中</span></div>
+    </div>
+    <p class="poster-tip" id="poster-tip">长按图片可以保存，或直接发给朋友</p>
+    <div class="share-actions">
+      <button class="btn" id="s-save" type="button">保存海报</button>
+      <button class="btn soft" id="s-copy" type="button">复制链接</button>
+    </div>
+    <button class="btn soft wide" id="s-more" type="button" hidden>更多分享方式</button>
+    <button class="link" type="button" data-close>关闭</button>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </div>
 
-<script src="js/config.js?v=202611061441"></script>
-<script src="js/sfx-data.js?v=202611061441"></script>
-<script src="js/audio.js?v=202611061441"></script>
-<script src="js/store.js?v=202611061441"></script>
-<script src="js/fx.js?v=202611061441"></script>
-<script src="js/scratch.js?v=202611061441"></script>
-<script src="js/player.js?v=202611061441"></script>
-<script src="js/chat.js?v=202611061441"></script>
-<script src="js/app.js?v=202611061441"></script>
+<script src="js/config.js?v=202611061600"></script>
+<script src="js/sfx-data.js?v=202611061600"></script>
+<script src="js/audio.js?v=202611061600"></script>
+<script src="js/store.js?v=202611061600"></script>
+<script src="js/fx.js?v=202611061600"></script>
+<script src="js/scratch.js?v=202611061600"></script>
+<script src="js/player.js?v=202611061600"></script>
+<script src="js/chat.js?v=202611061600"></script>
+<script src="js/share.js?v=202611061600"></script>
+<script src="js/app.js?v=202611061600"></script>
 </body>
 </html>
