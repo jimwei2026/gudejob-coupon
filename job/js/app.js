@@ -125,7 +125,6 @@
   function setMuted(m) {
     GJ.audio.setMuted(m);
     GJ.player.setMuted(m);
-    GJ.bgm.setMuted(m);
     S.setMuted(m);
     var b = $('btn-mute');
     b.setAttribute('aria-pressed', m ? 'true' : 'false');
@@ -519,10 +518,8 @@
     // 点券条「看 Offer」：发完直接进录用通知书；PV 自然播完：回到聊天，只把 Offer 卡片发过来
     var toOffer = fromOffer ? null : function () { requestOffer(i, true); };
     var sendOffer = fromOffer ? null : function () { requestOffer(i, false); };
-    // 看 PV 时背景音乐让位给视频，关掉播放器再接着放
-    var done = function (then) { return function () { GJ.bgm.duck(false); nav.dismissed('player', then); }; };
-    GJ.bgm.duck(true);
-    nav.push('player', function () { GJ.player.close(); GJ.bgm.duck(false); });
+    var done = function (then) { return function () { nav.dismissed('player', then); }; };
+    nav.push('player', function () { GJ.player.close(); });
     GJ.player.open(ch, {
       strip: fromOffer ? null : stripText(),
       onBack: done(null),
@@ -887,9 +884,9 @@
 
   // ---------- 绑定 ----------
   function bind() {
-    // 第一次点屏幕：解锁声音、开始背景音乐、在历史里垫一步
+    // 第一次点屏幕：解锁声音、在历史里垫一步
     ['pointerdown', 'keydown', 'click'].forEach(function (type) {
-      document.addEventListener(type, function () { nav.arm(); GJ.audio.unlock(); GJ.bgm.start(); }, true);
+      document.addEventListener(type, function () { nav.arm(); GJ.audio.unlock(); }, true);
     });
     // 点按钮、岗位卡、消息时轻轻「啵」一声。自己有专属声音的（领券、刮工牌）标了 data-nosfx，不重复播
     document.addEventListener('click', function (e) {
@@ -897,12 +894,6 @@
       if (!el || el.disabled || el.closest('[data-nosfx]') || el.closest('#player')) return;
       GJ.audio.play('tap', { gain: 0.5, rate: 0.95 + Math.random() * 0.1 });
     }, true);
-    $('sw-bgm').addEventListener('click', function () {
-      var on = !S.bgmOn();
-      S.setBgm(on);
-      GJ.bgm.setEnabled(on);
-      $('sw-bgm').setAttribute('aria-checked', on ? 'true' : 'false');
-    });
 
     $('btn-home').addEventListener('click', function () {
       if (ui.tab !== 'jobs') switchTab('jobs');
@@ -1036,8 +1027,6 @@
       onHr: openHr,
     });
     setMuted(S.muted());
-    GJ.bgm.setEnabled(S.bgmOn());
-    $('sw-bgm').setAttribute('aria-checked', S.bgmOn() ? 'true' : 'false');
     readInvite();
     renderRules();
     makeBurst();

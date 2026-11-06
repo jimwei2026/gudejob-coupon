@@ -24,7 +24,6 @@
       st: fill(0), t0: fill(0), fav: fill(false),
       leave: keep ? keep.leave : false,
       muted: keep ? keep.muted : false,
-      bgmOff: keep ? !!keep.bgmOff : false,
     };
   }
   function fill(v) { var a = []; for (var i = 0; i < N; i++) a.push(v); return a; }
@@ -74,7 +73,5 @@
     markLeaveShown: function () { data.leave = true; save(); },
     muted: function () { return !!data.muted; },
     setMuted: function (m) { data.muted = !!m; save(); },
-    bgmOn: function () { return !data.bgmOff; },
-    setBgm: function (on) { data.bgmOff = !on; save(); },
   };
 })();
