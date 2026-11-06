@@ -7,7 +7,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#FFFFFF">
 <title>菇的JOB! 招主人</title>
-<link rel="stylesheet" href="css/app.css?v=202611061824">
+<link rel="stylesheet" href="css/app.css?v=202611061847">
 </head>
 <body>
 <div class="app" id="app">
@@ -410,16 +410,33 @@
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </div>
 
-<script src="js/config.js?v=202611061824"></script>
-<script src="js/sfx-data.js?v=202611061824"></script>
-<script src="js/audio.js?v=202611061824"></script>
-<script src="js/bgm.js?v=202611061824"></script>
-<script src="js/store.js?v=202611061824"></script>
-<script src="js/fx.js?v=202611061824"></script>
-<script src="js/scratch.js?v=202611061824"></script>
-<script src="js/player.js?v=202611061824"></script>
-<script src="js/chat.js?v=202611061824"></script>
-<script src="js/share.js?v=202611061824"></script>
-<script src="js/app.js?v=202611061824"></script>
+<script>
+// 网不好时某个脚本可能加载失败（压测里出现过一次），页面会卡在半成品：给一个「重新加载」的提示，不让用户面对白屏
+(function () {
+  var shown = false;
+  window.addEventListener('error', function (e) {
+    var t = e.target;
+    if (shown || !t || t.tagName !== 'SCRIPT' || !t.src) return;
+    shown = true;
+    var bar = document.createElement('div');
+    bar.setAttribute('role', 'alert');
+    bar.style.cssText = 'position:fixed;left:16px;right:16px;bottom:24px;z-index:9999;background:#1E1B18;color:#fff;border-radius:16px;padding:14px 16px;font:14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;display:flex;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,.25)';
+    bar.innerHTML = '<span style="flex:1">网络不太好，页面没加载完整</span><button type="button" style="height:40px;padding:0 16px;border:0;border-radius:20px;background:#F6CF4E;color:#1E1B18;font:inherit;font-weight:700">重新加载</button>';
+    bar.querySelector('button').addEventListener('click', function () { location.reload(); });
+    document.body.appendChild(bar);
+  }, true);
+})();
+</script>
+<script src="js/config.js?v=202611061847"></script>
+<script src="js/sfx-data.js?v=202611061847"></script>
+<script src="js/audio.js?v=202611061847"></script>
+<script src="js/bgm.js?v=202611061847"></script>
+<script src="js/store.js?v=202611061847"></script>
+<script src="js/fx.js?v=202611061847"></script>
+<script src="js/scratch.js?v=202611061847"></script>
+<script src="js/player.js?v=202611061847"></script>
+<script src="js/chat.js?v=202611061847"></script>
+<script src="js/share.js?v=202611061847"></script>
+<script src="js/app.js?v=202611061847"></script>
 </body>
 </html>

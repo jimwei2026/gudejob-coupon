@@ -1013,10 +1013,13 @@
     }
   }
 
-  // 首屏稳定后，在后台一张一张地把还没刮的卡面先下载好
+  // 首屏稳定后，在后台一张一张地把还没刮的卡面先下载好（7 张约 1MB）。
+  // 省流量模式或 2G 网络下只预载卡背，不预载卡面：进聊天时会再单独预载那一张，刮的时候也会等它加载完
   function preloadCards() {
+    var c = navigator.connection || {};
+    var slow = !!c.saveData || /(^|-)2g$/.test(c.effectiveType || '');
     var queue = ['assets/cards/back.jpg'];
-    for (var i = 0; i < S.size; i++) if (S.status(i) < 2) queue.push('assets/cards/' + S.idAt(i) + '.jpg');
+    if (!slow) for (var i = 0; i < S.size; i++) if (S.status(i) < 2) queue.push('assets/cards/' + S.idAt(i) + '.jpg');
     (function next() {
       var src = queue.shift();
       if (!src) return;
