@@ -344,7 +344,7 @@
     var st = S.status(i), list;
     // 第 4 项为 true：这个按钮自己有声音（打开刮工牌会「唰」一声），不再播点击声
     if (st <= 1) list = [['刮开工牌', true, function () { openScratch(i); }, true], ['换个岗位看看', false, backToJobs]];
-    else if (st === 2) list = [['看 TA 的工作日常', true, function () { openPV(i, false); }], [C.chat.want, false, function () { requestOffer(i); }]];
+    else if (st === 2) list = [['看 TA 的工作日常', true, function () { openPV(i, false); }], [C.chat.want, false, function () { requestOffer(i, false); }]];
     else list = [['查看 Offer', true, function () { goOffer(i); }], ['换个岗位看看', false, backToJobs]];
     list.forEach(function (r) {
       var b = document.createElement('button');
@@ -360,18 +360,20 @@
 
   function backToJobs() { nav.backTo(0, function () { switchTab('jobs'); $('jobs-list').scrollTop = 0; }); }
 
-  function requestOffer(i) {
+  // 让秃秃 HR 发 Offer。open=true 只用于用户明确点了「看 Offer」（PV 里的券条）：发完直接进录用通知书；
+  // 其他情况（点「我想接 TA 回家」、PV 自然播完）只把 Offer 卡片发到聊天里，要用户自己点卡片才进
+  function requestOffer(i, open) {
     var ch = chAt(i);
-    if (S.status(i) >= 3) { goOffer(i); return; }
+    if (S.status(i) >= 3) { if (open) goOffer(i); return; }
     S.advance(i, 3);
     refreshAll();
     if (ui.chatPos === i && nav.top() === 'chat') {
       setReplies(i, true);
       GJ.chat.play(i, ch, GJ.chat.segOffer(), function () {
         setReplies(i);
-        setTimeout(function () { if (ui.chatPos === i && nav.top() === 'chat') goOffer(i); }, 450);
+        if (open) setTimeout(function () { if (ui.chatPos === i && nav.top() === 'chat') goOffer(i); }, 450);
       });
-    } else goOffer(i);
+    } else if (open) goOffer(i);
   }
 
   // ---------- 刮工牌 ----------
@@ -514,7 +516,9 @@
   function openPV(i, fromOffer) {
     var ch = chAt(i);
     GJ.audio.unlock();
-    var toOffer = fromOffer ? null : function () { requestOffer(i); };
+    // 点券条「看 Offer」：发完直接进录用通知书；PV 自然播完：回到聊天，只把 Offer 卡片发过来
+    var toOffer = fromOffer ? null : function () { requestOffer(i, true); };
+    var sendOffer = fromOffer ? null : function () { requestOffer(i, false); };
     // 看 PV 时背景音乐让位给视频，关掉播放器再接着放
     var done = function (then) { return function () { GJ.bgm.duck(false); nav.dismissed('player', then); }; };
     GJ.bgm.duck(true);
@@ -523,7 +527,7 @@
       strip: fromOffer ? null : stripText(),
       onBack: done(null),
       onSkip: done(toOffer),
-      onEnded: done(toOffer),
+      onEnded: done(sendOffer),
     });
     syncInert();
   }
