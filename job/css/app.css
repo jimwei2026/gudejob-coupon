@@ -564,8 +564,23 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .pv-unmute { position: absolute; z-index: 2; top: calc(68px + var(--sat)); right: 12px; height: 36px; padding: 0 14px; border-radius: 999px; background: #fff; color: var(--ink); font-size: 13px; font-weight: 700; box-shadow: 0 4px 12px rgba(0, 0, 0, .3); }
 .pv-bottom { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; display: grid; gap: 12px; padding: 56px 16px calc(16px + var(--sab)); background: linear-gradient(0deg, rgba(0, 0, 0, .62) 0%, rgba(0, 0, 0, .35) 55%, rgba(0, 0, 0, 0) 100%); pointer-events: none; }
 .pv-bottom > * { pointer-events: auto; }
-.pv-bar { height: 3px; border-radius: 3px; background: rgba(255, 255, 255, .3); overflow: hidden; pointer-events: none; }
-.pv-bar i { display: block; height: 100%; background: #fff; transform-origin: 0 50%; transform: scaleX(0); }
+/* 进度条：整条 44px 高都能按住拖，看得见的轨道只有 4px，拖动时变粗、圆点放大 */
+.pv-seek { display: flex; align-items: center; gap: 10px; }
+.pv-time { min-width: 34px; font-size: 12px; font-weight: 700; color: rgba(255, 255, 255, .92); font-variant-numeric: tabular-nums; text-shadow: 0 1px 3px rgba(0, 0, 0, .5); }
+.pv-time:last-child { text-align: right; }
+.pv-track { position: relative; flex: 1; height: 44px; display: flex; align-items: center; touch-action: none; cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; outline: none; }
+.pv-rail { position: relative; width: 100%; height: 4px; border-radius: 4px; background: rgba(255, 255, 255, .28); overflow: hidden; transition: height .15s; }
+.pv-rail i { position: absolute; inset: 0; transform-origin: 0 50%; transform: scaleX(0); }
+.pv-buf { background: rgba(255, 255, 255, .3); }
+.pv-fill { background: #fff; }
+.pv-knob { position: absolute; top: 50%; left: 0; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .45); pointer-events: none; transition: transform .15s; }
+.pv-track:focus-visible .pv-rail { box-shadow: 0 0 0 2px var(--yellow); }
+.pv-track:focus-visible .pv-knob { box-shadow: 0 0 0 3px var(--yellow); }
+.player.is-seeking .pv-rail { height: 6px; }
+.player.is-seeking .pv-knob { transform: scale(1.35); }
+.player.is-error .pv-seek { visibility: hidden; }
+@media (hover: hover) { .pv-track:hover .pv-rail { height: 6px; } }
+@media (prefers-reduced-motion: reduce) { .pv-rail, .pv-knob { transition: none; } }
 .pv-strip { height: 56px; border-radius: 999px; width: 100%; display: flex; align-items: center; gap: 12px; padding: 0 6px 0 16px; background: var(--yellow); color: var(--ink); text-align: left; box-shadow: 0 8px 24px rgba(0, 0, 0, .35); }
 .pv-strip-tag { width: 28px; height: 28px; border-radius: 8px; background: var(--red); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 13px; flex: 0 0 auto; }
 #pv-strip-text { flex: 1; font-size: 14px; font-weight: 700; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
