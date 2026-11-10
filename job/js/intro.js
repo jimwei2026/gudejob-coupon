@@ -31,7 +31,7 @@
 
     var cp = C.coupon;
     $('intro-strip-name').textContent = cp.name + ' ¥' + cp.amount;
-    $('intro-strip-sub').textContent = cp.threshold + ' · 不用先玩也能领';
+    $('intro-strip-sub').textContent = cp.threshold;
 
     el.video.setAttribute('playsinline', '');
     el.video.setAttribute('webkit-playsinline', '');

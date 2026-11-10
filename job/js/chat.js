@@ -19,9 +19,8 @@
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   function clock(ms) { var d = new Date(ms || Date.now()); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
   function fill(s, ch) { return s.replace(/\{name\}/g, ch.name).replace(/\{scene\}/g, ch.job.scene); }
-  // 隐藏款面试（刮开工牌）之前保密
+  // 隐藏款面试（刮开简历）之前保密
   function masked(pos, ch) { return !!ch.hidden && GJ.store.status(pos) < 2; }
-  function shownName(pos, ch) { return masked(pos, ch) ? ch.mask.name : ch.name; }
 
   var ME_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>';
   var PLAY_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>';
@@ -34,7 +33,6 @@
     // 隐藏款的自我介绍本身就是保密版（config 里 resume.hi），揭晓后回看记录也不会穿帮
     return [
       { t: 'time', text: clock(GJ.store.startedAt(pos)) },
-      { t: 'sys', text: '你正在和' + shownName(pos, ch) + '沟通「' + C.job.title + '」' },
       { t: 'me', text: C.chat.greet },
       { t: 'hr', text: ch.resume.hi },
       { t: 'hr', text: ch.hidden ? C.chat.askHidden : C.chat.ask },
@@ -42,10 +40,10 @@
       { t: 'hr', text: C.chat.accepted },
     ];
   }
-  // 面试（刮开工牌）之后：亮工牌 → 作品集视频
+  // 面试（刮开简历）之后：亮简历 → 作品集视频
   function segReveal(pos, ch) {
     return [
-      { t: 'sys', text: '面试结束 · 工牌验过了' },
+      { t: 'sys', text: '面试结束' },
       { t: 'card', text: fill(ch.hidden ? C.chat.revealHidden : C.chat.reveal, ch) },
       { t: 'hr', text: C.chat.portfolio },
       { t: 'video' },
@@ -89,14 +87,14 @@
     return s;
   }
 
-  // 面试邀请卡：老板发出，秃秃已接受。工牌刮开之前卡片上有「开始面试」
+  // 面试邀请卡：老板发出，秃秃已接受。简历刮开之前卡片上有「开始面试」
   function inviteCard(pos, ch) {
     var c = node('div', 'm-invite');
     var head = node('span', 'mc-head');
     head.appendChild(node('b', null, '面试邀请'));
     head.appendChild(node('span', null, '你发出的'));
     var body = node('span', 'mi-body');
-    [['职位', C.job.title], ['时间', '现在'], ['地点', '你的手机里'], ['面试官', '你']].forEach(function (kv) {
+    [['时间', '现在'], ['地点', '你的手机里']].forEach(function (kv) {
       body.appendChild(node('span', 'mi-k', kv[0]));
       body.appendChild(node('span', null, kv[1]));
     });
@@ -106,7 +104,7 @@
     if (!done) {
       var go = node('button', 'mc-go', '开始面试');
       go.type = 'button';
-      go.setAttribute('data-nosfx', '');   // 打开面试（刮工牌）自己有声音
+      go.setAttribute('data-nosfx', '');   // 打开面试（刮简历）自己有声音
       go.addEventListener('click', function () { handlers.onCard(pos); });
       foot.appendChild(go);
     }
@@ -138,7 +136,7 @@
     head.appendChild(node('span', null, '你发出的'));
     var body = node('span', 'mo-body');
     body.appendChild(node('b', null, '发给：' + ch.name));
-    body.appendChild(node('span', 'mo-perk', '岗位：' + C.job.title + ' · ' + C.job.perk));
+    body.appendChild(node('span', 'mo-perk', '岗位：' + C.job.title));
     var foot = node('span', 'mo-foot');
     foot.appendChild(doneLine('TA 已接受'));
     var chev = node('span', 'chev'); chev.innerHTML = CHEV_SVG; foot.appendChild(chev);
@@ -186,7 +184,7 @@
         pic.appendChild(img);
         var p = node('span', 'mv-play'); p.innerHTML = PLAY_SVG; pic.appendChild(p);
         v.appendChild(pic);
-        v.appendChild(node('span', 'm-cap', '作品集 · 我的工作日常 · 视频'));
+        v.appendChild(node('span', 'm-cap', '作品集'));
         v.addEventListener('click', function () { handlers.onVideo(pos); });
         return tutuRow(v, pos, ch);
       }

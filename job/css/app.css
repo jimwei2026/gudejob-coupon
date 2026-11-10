@@ -116,10 +116,6 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .brand-word em { font-style: normal; color: var(--orange); }
 .brand-chip { font-size: 12px; color: var(--ink-2); border: 1px solid var(--line-2); border-radius: 8px; padding: 0 6px; line-height: 20px; }
 .jobs-sort { height: 44px; display: flex; align-items: center; justify-content: space-between; padding-right: 8px; }
-.sort-tabs { display: flex; align-items: center; gap: 20px; height: 44px; }
-.sort-tab { position: relative; height: 44px; min-width: 44px; font-size: 16px; color: var(--ink-2); display: inline-flex; align-items: center; justify-content: center; }
-.sort-tab[aria-selected="true"] { font-size: 20px; font-weight: 700; color: var(--ink); }
-.sort-tab[aria-selected="true"]::after { content: ""; position: absolute; left: 50%; bottom: 4px; width: 16px; height: 3px; margin-left: -8px; border-radius: 2px; background: var(--ink); }
 .filters { display: flex; gap: 8px; }
 .filter { height: 44px; display: inline-flex; align-items: center; }
 .filter > span { height: 32px; padding: 0 12px; border-radius: 8px; background: var(--chip-bg); color: var(--chip); font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
@@ -232,17 +228,17 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 /* 聊天 */
 .chat-bar { background: var(--card); }
 .chat-who { flex: 1; display: grid; justify-items: center; line-height: 1.3; }
-.chat-who p { font-size: 16px; font-weight: 700; }
-.chat-who span { font-size: 12px; color: var(--ink-2); }
 .chat-who { min-height: 44px; align-content: center; border-radius: 10px; }
-.chat-who .chat-who-name { font-size: 16px; font-weight: 700; color: var(--ink); }
-.chat-job { height: 48px; flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 0 16px; background: var(--card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); min-width: 0; }
-.chat-job b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.chat-job .salary { font-size: 14px; }
+.chat-who .chat-who-name { font-size: 16px; font-weight: 700; color: var(--ink); max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-who-link { display: inline-flex; align-items: center; gap: 1px; font-size: 12px; color: var(--ink-2); }
+.chat-who-link .chev { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .chat-log { flex: 1 1 auto; min-height: 0; padding: 16px 12px 20px; display: flex; flex-direction: column; gap: 12px; }
 .chat-foot { flex: 0 0 auto; background: var(--card); border-top: 1px solid var(--line); padding: 8px 12px calc(12px + var(--sab)); display: grid; gap: 6px; }
 .cf-label { font-size: 12px; color: var(--ink-3); padding-left: 4px; min-height: 18px; }
 .replies { display: flex; flex-wrap: wrap; gap: 8px; min-height: 44px; }
+.chat-foot-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.chat-foot-row .replies { flex: 1 1 auto; min-width: 0; }
+.chat-foot-row .coupon-pill { padding-right: 0; }
 .reply { height: 44px; padding: 0 18px; border-radius: 22px; background: var(--chip-bg); color: var(--ink); font-size: 14px; display: inline-flex; align-items: center; animation: pop-in .3s var(--ease-out) both; }
 .reply.primary { background: var(--ink); color: #fff; font-weight: 700; }
 .reply:active { transform: scale(.97); }
@@ -311,7 +307,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .l-head p { font-size: 14px; line-height: 1.6; }
 .l-fields { display: grid; grid-template-columns: 64px minmax(0, 1fr); row-gap: 6px; font-size: 13px; padding-right: 84px; }
 .l-fields dt { color: var(--ink-2); }
-.l-note { font-size: 12px; line-height: 1.5; color: var(--ink-2); margin-top: -6px; }
+.l-note { font-size: 12px; line-height: 1.5; color: var(--ink-2); margin-top: -6px; padding-right: 84px; }
 .seal {
   position: absolute; right: 22px; top: 122px; width: 72px; height: 72px; border-radius: 50%;
   border: 2px solid var(--red); color: var(--red);
@@ -370,7 +366,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .fine { display: grid; justify-items: center; }
 .fine p { font-size: 12px; color: var(--ink-3); text-align: center; }
 
-/* ---------- 刮工牌（全屏，像聊天里点开大图） ---------- */
+/* ---------- 刮简历（全屏，像聊天里点开大图） ---------- */
 .scratch-ov {
   position: absolute; inset: 0; z-index: 50; background: var(--dark); color: #F3EEE7;
   display: flex; flex-direction: column; padding-top: var(--sat);
@@ -558,8 +554,8 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 
 /* 主页顶部：老板正在招的岗位 */
 .post-line { display: flex; align-items: center; gap: 8px; min-height: 32px; padding: 2px 8px 4px 0; min-width: 0; }
-.post-line b { font-size: 18px; font-weight: 800; white-space: nowrap; }
-.post-perk { font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+.post-line b { font-size: 18px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.post-k { font-size: 13px; color: var(--ink-2); white-space: nowrap; flex: 0 0 auto; }
 
 /* 一级页面固定券条：在标签栏上方，人才 / 消息 / 我的三个标签页都在 */
 .coupon-bar { flex: 0 0 auto; margin: 0 12px 8px; height: 56px; border-radius: 28px; background: var(--yellow); color: var(--ink); display: flex; align-items: center; gap: 10px; padding: 0 6px 0 14px; text-align: left; box-shadow: 0 6px 18px rgba(30, 27, 24, .16); transition: transform .15s var(--ease-out); }
@@ -577,8 +573,8 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .coupon-pill:active > span { transform: scale(.95); }
 
 /* 人才卡片：头像、名字、状态（每种状态都写字）、基础信息、期望、优势、标签、按钮 */
-.t-card { padding: 14px 14px 12px; gap: 8px; }
-.t-top { display: flex; gap: 12px; min-width: 0; }
+/* v11：人才卡片只有一行——头像 | 名字 + 状态 / 想做什么 | 按钮 */
+.t-card { flex-direction: row; align-items: center; gap: 12px; padding: 12px 12px 12px 14px; }
 .t-ava { position: relative; width: 52px; height: 52px; border-radius: 50%; background: var(--paper); overflow: hidden; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
 .t-ava img { width: 88%; height: 88%; object-fit: contain; }
 .t-ava.big { width: 64px; height: 64px; }
@@ -589,14 +585,9 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .t-ava.big.is-mask b { font-size: 24px; }
 .t-ava.mid.is-mask b { font-size: 17px; }
 .t-main { flex: 1 1 auto; min-width: 0; display: grid; gap: 4px; }
+.t-role { font-size: 13px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .t-r1 { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .t-name { font-size: 16px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.t-line { font-size: 13px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.t-want { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--chip); min-width: 0; }
-.t-want .fill { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.t-adv { font-size: 13px; line-height: 1.55; color: var(--chip); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.t-foot { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.t-foot .tags { flex: 1 1 auto; min-width: 0; flex-wrap: nowrap; overflow: hidden; }
 /* 卡片上的按钮要盖在整卡透明点击层（.job-hit）上面 */
 .t-act { position: relative; z-index: 2; height: 44px; display: inline-flex; align-items: center; flex: 0 0 auto; }
 .t-act > span { height: 36px; padding: 0 14px; border-radius: 18px; background: var(--ink); color: #fff; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; transition: transform .15s var(--ease-out); }
@@ -608,23 +599,15 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 
 /* 在线简历 */
 .rs-body { display: grid; gap: 8px; align-content: start; padding-bottom: 12px; }
-.rs-top { background: var(--card); padding: 12px 16px 16px; display: grid; gap: 12px; }
-.rs-who { display: flex; align-items: center; gap: 14px; }
+.rs-top { background: var(--card); padding: 12px 16px 18px; display: flex; align-items: center; gap: 14px; }
 .rs-id { display: grid; gap: 4px; min-width: 0; }
 .rs-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .rs-name-row b { font-size: 22px; font-weight: 900; }
-.rs-sub { font-size: 13px; color: var(--ink-2); }
-.rs-want { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.rs-want > span { background: var(--paper); border-radius: 10px; padding: 8px 10px; display: grid; gap: 2px; min-width: 0; }
-.rs-want small { font-size: 12px; color: var(--ink-2); }
-.rs-want b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rs-role { font-size: 14px; color: var(--ink-2); }
 .rs-sec { background: var(--card); padding: 14px 16px; display: grid; gap: 8px; }
 .rs-sec h2 { font-size: 16px; font-weight: 800; }
 .rs-p { font-size: 14px; line-height: 1.65; color: var(--text); }
-.rs-exp { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 14px; }
-.rs-exp-d { font-size: 13px; line-height: 1.6; color: var(--chip); }
 .rs-list { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; font-size: 14px; line-height: 1.6; color: var(--text); }
-.rs-list + h2 { margin-top: 6px; }
 .rs-pf { width: 100%; background: var(--card); padding: 14px 16px; display: flex; align-items: center; gap: 12px; text-align: left; }
 .rs-pf-pic { position: relative; width: 56px; height: 72px; border-radius: 8px; overflow: hidden; background: var(--dark); flex: 0 0 auto; }
 .rs-pf-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -640,10 +623,6 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 
 /* 聊天 */
 .chat-who { min-width: 0; }
-.chat-who > span { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.chat-job .cj-txt { flex: 1 1 auto; min-width: 0; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.chat-job .cj-txt b { font-size: 13px; }
-.cj-link { min-height: 44px; display: inline-flex; align-items: center; gap: 2px; font-size: 13px; color: var(--ink-2); flex: 0 0 auto; }
 .m-row .t-ava { width: 36px; height: 36px; }
 .m-row .t-ava.is-mask b { font-size: 15px; }
 .m-row .t-ava.is-mask img { filter: blur(3px); }
@@ -681,8 +660,6 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .cp-play-txt b { font-size: 15px; }
 .cp-play-txt span { font-size: 13px; color: var(--ink-2); }
 .cp-go { height: 44px; padding: 0 16px; border-radius: 22px; background: var(--chip-bg); font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; flex: 0 0 auto; }
-.cp-rules { background: var(--card); border-radius: 16px; padding: 14px 16px; display: grid; gap: 8px; }
-.cp-rules h2 { font-size: 15px; font-weight: 800; }
 
 /* 我的：招到的秃秃（实物图），还没招到的灰着 */
 .og-fig { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 1 / 1; border-radius: 14px; background: var(--paper); overflow: hidden; }
@@ -695,7 +672,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .og-item.is-holo .og-fig { box-shadow: 0 0 0 2px #C9B8F2; }
 .og-item.is-got:active .og-fig, .og-item.is-locked:active .og-fig { transform: scale(.97); }
 
-/* 面试（刮工牌）页顶部的标题 */
+/* 面试（刮简历）页顶部的标题 */
 .sc-head { flex: 0 0 auto; display: grid; justify-items: center; gap: 4px; padding: 0 24px 8px; text-align: center; }
 .sc-h1 { font-size: 20px; font-weight: 800; }
 .sc-h2 { font-size: 13px; color: #A8A097; }
@@ -725,7 +702,6 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .strip-txt { flex: 1 1 auto; min-width: 0; display: grid; gap: 1px; }
 .strip-txt b { font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .strip-txt small { font-size: 12px; color: var(--ticket-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.intro-note { font-size: 12px; text-align: center; color: rgba(255, 255, 255, .78); }
 @media (hover: hover) {
   .intro-skip:hover { background: rgba(255, 255, 255, .26); }
   .coupon-bar:hover, .m-coupon:hover { filter: brightness(1.03); }
@@ -744,12 +720,9 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 @media (max-width: 360px) {
   .post-line b { font-size: 16px; }
   .t-act > span { padding: 0 10px; }
-  .rs-want { gap: 6px; }
-  .rs-want > span { padding: 8px; }
-  .sort-tabs { gap: 14px; }
   .filters { gap: 4px; }
   .filter > span { padding: 0 8px; }
-  .l-fields { padding-right: 0; }
+  .l-fields, .l-note { padding-right: 0; }
   .seal { right: 14px; width: 64px; height: 64px; }
   .t-amt { width: 76px; }
   .t-info { padding: 12px 10px; }
