@@ -7,7 +7,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#FFFFFF">
 <title>菇的JOB! 招秃秃</title>
-<link rel="stylesheet" href="css/app.css?v=202611101634">
+<link rel="stylesheet" href="css/app.css?v=202611101652">
 </head>
 <body>
 <div class="app" id="app">
@@ -372,6 +372,8 @@
 
   <!-- ========== 开场主题视频（第一次进来时） ========== -->
   <div class="intro" id="intro" hidden role="dialog" aria-modal="true" aria-label="开场主题视频">
+    <!-- 视频两边的空白用同一画面的模糊放大版填满（屏幕比 9:16 更长时会有空白） -->
+    <canvas class="intro-amb" id="intro-amb" width="36" height="64" aria-hidden="true"></canvas>
     <video id="intro-video" playsinline webkit-playsinline muted preload="auto" hidden></video>
     <!-- 视频还没给到时的占位画面：讲清楚这一波的主题 -->
     <div class="intro-ph" id="intro-ph">
@@ -472,16 +474,16 @@
   }, true);
 })();
 </script>
-<script src="js/config.js?v=202611101634"></script>
-<script src="js/sfx-data.js?v=202611101634"></script>
-<script src="js/audio.js?v=202611101634"></script>
-<script src="js/store.js?v=202611101634"></script>
-<script src="js/fx.js?v=202611101634"></script>
-<script src="js/scratch.js?v=202611101634"></script>
-<script src="js/player.js?v=202611101634"></script>
-<script src="js/intro.js?v=202611101634"></script>
-<script src="js/chat.js?v=202611101634"></script>
-<script src="js/share.js?v=202611101634"></script>
-<script src="js/app.js?v=202611101634"></script>
+<script src="js/config.js?v=202611101652"></script>
+<script src="js/sfx-data.js?v=202611101652"></script>
+<script src="js/audio.js?v=202611101652"></script>
+<script src="js/store.js?v=202611101652"></script>
+<script src="js/fx.js?v=202611101652"></script>
+<script src="js/scratch.js?v=202611101652"></script>
+<script src="js/player.js?v=202611101652"></script>
+<script src="js/intro.js?v=202611101652"></script>
+<script src="js/chat.js?v=202611101652"></script>
+<script src="js/share.js?v=202611101652"></script>
+<script src="js/app.js?v=202611101652"></script>
 </body>
 </html>

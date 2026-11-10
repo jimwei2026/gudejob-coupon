@@ -37,8 +37,8 @@ GJ.config = {
   // 视频做好后：放到 assets/intro/，把 video 改成 'assets/intro/文件名.mp4'（竖屏 9:16，建议 15–30 秒，H.264，moov 放文件头）
   intro: {
     enabled: true,
-    video: '',
-    poster: '',
+    video: 'assets/intro/intro.mp4',          // 2026-11-10 先放「社交玩法营销（for软件）」试试（原片 4K 120MB，转成 720×1280 2.5MB）
+    poster: 'assets/intro/intro-poster.jpg',
     placeholderSeconds: 6,
   },
 

@@ -6,7 +6,7 @@
  */
 (function () {
   var C = GJ.config;
-  var el = {}, open = false, opts = {}, phTimer = 0, phStart = 0, phRaf = 0;
+  var el = {}, open = false, opts = {}, phTimer = 0, phStart = 0, phRaf = 0, ambTimer = 0, ambCtx = null;
 
   function $(id) { return document.getElementById(id); }
   function fmt(s) {
@@ -28,6 +28,7 @@
     el.sound = $('intro-sound');
     el.play = $('intro-play');
     el.strip = $('intro-strip');
+    el.amb = $('intro-amb');
 
     var cp = C.coupon;
     $('intro-strip-name').textContent = cp.name + ' ¥' + cp.amount;
@@ -82,10 +83,38 @@
   }
 
   function stopPlaceholder() { clearTimeout(phTimer); cancelAnimationFrame(phRaf); }
+
+  // 视频两边的空白：把当前画面画进一张很小的画布，再用 CSS 放大、模糊，颜色跟着视频走。
+  // 每秒画 8 次（系统设置了「减弱动态效果」时每秒 1 次）；画不了就保持深色背景
+  function ambDraw(src) {
+    if (!ambCtx) return false;
+    try { ambCtx.drawImage(src, 0, 0, el.amb.width, el.amb.height); return true; } catch (e) { return false; }
+  }
+  function startAmbient() {
+    stopAmbient();
+    if (!el.amb || !el.amb.getContext) return;
+    try { ambCtx = ambCtx || el.amb.getContext('2d'); } catch (e) { ambCtx = null; }
+    if (!ambCtx) return;
+    ambCtx.clearRect(0, 0, el.amb.width, el.amb.height);
+    if (cfg().poster) {
+      var img = new Image();
+      img.onload = function () { if (open && el.video.readyState < 2) ambDraw(img); };
+      img.src = cfg().poster;
+    }
+    var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    (function tick() {
+      if (!open || el.video.hidden) return;
+      if (!document.hidden && el.video.readyState >= 2 && !ambDraw(el.video)) return;
+      ambTimer = setTimeout(tick, calm ? 1000 : 125);
+    })();
+  }
+  function stopAmbient() { clearTimeout(ambTimer); }
   function usePlaceholder() {
     stopPlaceholder();
     el.video.pause();
+    stopAmbient();
     el.video.hidden = true;
+    el.root.classList.remove('is-video');
     el.sound.hidden = true;
     el.play.hidden = true;
     el.ph.hidden = false;
@@ -109,6 +138,7 @@
     if (hasVideo()) {
       el.ph.hidden = true;
       el.video.hidden = false;
+      el.root.classList.add('is-video');   // 有真视频：视频在上、控制条在下，字幕不被盖住
       el.sound.hidden = false;
       if (el.video.getAttribute('src') !== cfg().video) {
         el.video.src = cfg().video;
@@ -120,6 +150,7 @@
       try { el.video.currentTime = 0; } catch (e) { /* 忽略 */ }
       paintBar(0, 0);
       playVideo();
+      startAmbient();
     } else {
       usePlaceholder();
     }
@@ -129,6 +160,7 @@
   function hide() {
     open = false;
     stopPlaceholder();
+    stopAmbient();
     el.video.pause();
     el.root.classList.remove('is-open');
     setTimeout(function () { if (!open) el.root.hidden = true; }, 260);
