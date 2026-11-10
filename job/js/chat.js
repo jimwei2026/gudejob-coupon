@@ -19,7 +19,7 @@
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   function clock(ms) { var d = new Date(ms || Date.now()); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
   function fill(s, ch) { return s.replace(/\{name\}/g, ch.name).replace(/\{scene\}/g, ch.job.scene); }
-  // 隐藏款面试（刮开工牌）之前保密
+  // 隐藏款面试（刮开简历）之前保密
   function masked(pos, ch) { return !!ch.hidden && GJ.store.status(pos) < 2; }
   function shownName(pos, ch) { return masked(pos, ch) ? ch.mask.name : ch.name; }
 
@@ -42,10 +42,10 @@
       { t: 'hr', text: C.chat.accepted },
     ];
   }
-  // 面试（刮开工牌）之后：亮工牌 → 作品集视频
+  // 面试（刮开简历）之后：亮简历 → 作品集视频
   function segReveal(pos, ch) {
     return [
-      { t: 'sys', text: '面试结束 · 工牌验过了' },
+      { t: 'sys', text: '面试结束 · 简历看过了' },
       { t: 'card', text: fill(ch.hidden ? C.chat.revealHidden : C.chat.reveal, ch) },
       { t: 'hr', text: C.chat.portfolio },
       { t: 'video' },
@@ -89,7 +89,7 @@
     return s;
   }
 
-  // 面试邀请卡：老板发出，秃秃已接受。工牌刮开之前卡片上有「开始面试」
+  // 面试邀请卡：老板发出，秃秃已接受。简历刮开之前卡片上有「开始面试」
   function inviteCard(pos, ch) {
     var c = node('div', 'm-invite');
     var head = node('span', 'mc-head');
@@ -106,7 +106,7 @@
     if (!done) {
       var go = node('button', 'mc-go', '开始面试');
       go.type = 'button';
-      go.setAttribute('data-nosfx', '');   // 打开面试（刮工牌）自己有声音
+      go.setAttribute('data-nosfx', '');   // 打开面试（刮简历）自己有声音
       go.addEventListener('click', function () { handlers.onCard(pos); });
       foot.appendChild(go);
     }

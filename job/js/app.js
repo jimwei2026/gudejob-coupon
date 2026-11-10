@@ -1,6 +1,6 @@
 /*
  * 版本线 2 · 老板版（v10）：用户是老板，7 只秃秃来应聘「首席情绪价值官」。
- * 第一次进来先看开场主题视频 → 人才列表 → 在线简历 → 和秃秃沟通（面试邀请）→ 面试：刮开工牌
+ * 第一次进来先看开场主题视频 → 人才列表 → 在线简历 → 和秃秃沟通（面试邀请）→ 面试：刮开简历
  * → 发 Offer → 秃秃接受、送见面礼 → 入职确认（领券）→ 跳转抖音 / 天猫。
  * 领券不设门槛：一级页面底部固定券条，二级页面右上角都有「领券」，开场视频和作品集视频下方也有券条。
  * 底部三个标签：人才 / 消息 / 我的。所有二级页面都进浏览器历史，手机返回键和侧滑返回都能用。
@@ -155,7 +155,7 @@
   function clock(ms) { var d = new Date(ms || Date.now()); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
   function fmtDist(m) { return m < 1 ? Math.round(m * 100) + 'cm' : m + 'm'; }
 
-  // 隐藏款面试（刮开工牌）之前保密：名字、头像、简历都用 config 里的 mask
+  // 隐藏款面试（刮开简历）之前保密：名字、头像、简历都用 config 里的 mask
   function masked(i) { return !!chAt(i).hidden && S.status(i) < 2; }
   function R(i) {
     var ch = chAt(i), r = ch.resume;
@@ -364,7 +364,7 @@
       GJ.chat.render(i, ch);
       setReplies(i);
     }
-    // 先把这张卡面下载好，面试刮工牌的时候不用等
+    // 先把这张卡面下载好，面试刮简历的时候不用等
     GJ.loadImage('assets/cards/' + ch.id + '.jpg', 1).catch(function () {});
   }
 
@@ -418,7 +418,7 @@
     }
   }
 
-  // ---------- 面试：刮开工牌 ----------
+  // ---------- 面试：刮开简历 ----------
   function sizeScratch() {
     var r = $('sc-area').getBoundingClientRect();
     if (!r.width) return;
@@ -439,15 +439,15 @@
     ov.classList.remove('is-luck', 'is-flash', 'is-done');
     card.classList.remove('is-revealed', 'is-ready', 'is-holo');
     $('sc-title').textContent = '面试中 · ' + nameOf(i);
-    $('sc-h2').textContent = ch.hidden ? '刮开工牌，看看隐藏款到底是谁' : '刮开 TA 的工牌，就是盲盒里那张身份卡';
+    $('sc-h2').textContent = ch.hidden ? '刮开简历，看看隐藏款到底是谁' : '刮开 TA 的简历，就是盲盒里那张身份卡';
     $('sc-head').hidden = false;
     $('sc-foot').hidden = false;
     $('sc-done').hidden = true;
     $('sc-meter').style.transform = 'scaleX(0)';
     $('sc-pct').textContent = '已刮 0%';
-    $('sc-hint').textContent = '工牌加载中……';
+    $('sc-hint').textContent = '简历加载中……';
     $('scratch-front').removeAttribute('src');
-    $('scratch-front').alt = nameOf(i) + '的工牌';
+    $('scratch-front').alt = nameOf(i) + '的简历';
     ov.hidden = false;
     void ov.offsetWidth;
     ov.classList.add('is-in');
@@ -469,7 +469,7 @@
       front: 'assets/cards/' + ch.id + '.jpg',
       frontEl: $('scratch-front'),
       threshold: C.revealAt,
-      // 工牌好了才开始下载视频，不和卡面抢网速
+      // 简历好了才开始下载视频，不和卡面抢网速
       onReady: function () {
         if (!said) $('sc-hint').textContent = '刮到 70% 自动翻开，刮的时候秃秃会「嘟」';
         GJ.player.prepare(ch);
@@ -489,7 +489,7 @@
     sc.ready.catch(function (err) {
       log('scratch failed ' + (err && err.message));
       if (ui.sc !== sc) return;
-      toast('网络有点慢，工牌已直接翻开');
+      toast('网络有点慢，简历已直接翻开');
       $('scratch-front').src = 'assets/cards/' + ch.id + '.jpg';
       sc.reveal(false);
     });
@@ -507,7 +507,7 @@
     if (ch.hidden) luckReveal();
     else { GJ.audio.play('sparkle', { gain: 0.8 }); GJ.audio.buzz(30, 0); }
     $('sc-title').textContent = '面试中 · ' + ch.name;
-    $('sc-name').textContent = ch.hidden ? '隐藏款揭晓：「' + ch.name + '」！' : '工牌验过了：「' + ch.name + '」';
+    $('sc-name').textContent = ch.hidden ? '隐藏款揭晓：「' + ch.name + '」！' : '简历看过了：「' + ch.name + '」';
     $('sc-fortune').textContent = ch.fortune;
     $('sc-head').hidden = true;
     $('sc-foot').hidden = true;
@@ -765,7 +765,7 @@
     var bar = j.querySelector('.jump-bar i');
     bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = '';
     syncInert();
-    // 领券确认：和刮工牌同一段秃秃原声（source/刮刮乐.mp3），原速不变调
+    // 领券确认：和刮简历同一段秃秃原声（source/刮刮乐.mp3），原速不变调
     GJ.audio.play('du', { gain: 0.9 });
     GJ.audio.buzz(20, 0);
     jumpTimers.push(setTimeout(function () { window.location.href = url; }, 1000));
@@ -912,7 +912,7 @@
       cp.name + '：立减 ¥' + cp.amount + '，' + cp.threshold + '，' + cp.validity + '。',
       '适用店铺：' + cp.store + '（抖音、天猫）。',
       '领券不用先玩；不管招到哪只秃秃，见面礼都是同一张券，多招不叠加。',
-      '7 只秃秃每一轮各来应聘一次；面试刮工牌只是页面小游戏，和实体盲盒的款式概率无关，实体盲盒概率以销售页公示为准。',
+      '7 只秃秃每一轮各来应聘一次；面试刮简历只是页面小游戏，和实体盲盒的款式概率无关，实体盲盒概率以销售页公示为准。',
       '页面有音效和视频声音，可以点右上角或在「我的」里关掉。',
     ];
   }
