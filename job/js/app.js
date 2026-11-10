@@ -382,7 +382,7 @@
     var st = S.status(i), list;
     // 第 4 项为 true：这个按钮自己有声音（打开面试会「唰」一声），不再播点击声
     if (st <= 1) list = [['开始面试', true, function () { openScratch(i); }, true], ['先看看别的', false, backToJobs]];
-    else if (st === 2) list = [[C.chat.sendOffer, true, function () { sendOffer(i); }], ['看 TA 的作品集', false, function () { openPV(i); }]];
+    else if (st === 2) list = [[C.chat.sendOffer, true, function () { sendOffer(i); }], ['看作品集', false, function () { openPV(i); }]];
     else list = [['看入职确认', true, function () { goOffer(i); }], ['继续招人', false, backToJobs]];
     list.forEach(function (r) {
       var b = document.createElement('button');

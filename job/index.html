@@ -7,7 +7,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#FFFFFF">
 <title>菇的JOB! 招秃秃</title>
-<link rel="stylesheet" href="css/app.css?v=202611101559">
+<link rel="stylesheet" href="css/app.css?v=202611101620">
 </head>
 <body>
 <div class="app" id="app">
@@ -127,6 +127,11 @@
           <span><small>到岗时间</small><b id="r-start">随时到岗</b></span>
         </div>
       </section>
+      <button class="rs-pf" id="r-pf" type="button">
+        <span class="rs-pf-pic"><img id="r-pf-img" alt=""><span class="rs-pf-ico" id="r-pf-ico" aria-hidden="true"></span></span>
+        <span class="rs-pf-txt"><b>作品集：我的工作日常</b><span id="r-pf-sub"></span></span>
+        <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6"/></svg>
+      </button>
       <section class="rs-sec">
         <h2>我的优势</h2>
         <p class="rs-p" id="r-adv"></p>
@@ -143,11 +148,6 @@
         <h2>我对老板的小要求</h2>
         <p class="rs-p" id="r-ask"></p>
       </section>
-      <button class="rs-pf" id="r-pf" type="button">
-        <span class="rs-pf-pic"><img id="r-pf-img" alt=""><span class="rs-pf-ico" id="r-pf-ico" aria-hidden="true"></span></span>
-        <span class="rs-pf-txt"><b>作品集：我的工作日常</b><span id="r-pf-sub"></span></span>
-        <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6"/></svg>
-      </button>
     </div>
     <footer class="d-foot">
       <button class="fav-col" id="r-fav" type="button" aria-pressed="false">
@@ -165,7 +165,7 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
       <div class="chat-who"><span class="chat-who-name" id="c-name"></span><span id="c-sub"></span></div>
-      <button class="coupon-pill" type="button" data-coupon aria-label="领券"><span><i aria-hidden="true">券</i>领券</span></button>
+      <span class="icon-spacer"></span>
     </header>
     <div class="chat-job">
       <span class="cj-txt"><b>沟通职位：<span id="c-job">首席情绪价值官</span></b><span class="muted" id="c-perk"> · 包吃包住</span></span>
@@ -176,7 +176,7 @@
       <span class="cf-label" id="cf-label">选一句回复秃秃</span>
       <div class="chat-foot-row">
         <div class="replies" id="replies"></div>
-        <button class="coupon-pill" id="chat-coupon" type="button" data-coupon aria-label="领券"><span><i aria-hidden="true">券</i>领券</span></button>
+        <button class="cf-coupon" id="chat-coupon" type="button" data-coupon aria-label="领券"><i aria-hidden="true">券</i>领券</button>
       </div>
     </footer>
   </section>
@@ -472,16 +472,16 @@
   }, true);
 })();
 </script>
-<script src="js/config.js?v=202611101559"></script>
-<script src="js/sfx-data.js?v=202611101559"></script>
-<script src="js/audio.js?v=202611101559"></script>
-<script src="js/store.js?v=202611101559"></script>
-<script src="js/fx.js?v=202611101559"></script>
-<script src="js/scratch.js?v=202611101559"></script>
-<script src="js/player.js?v=202611101559"></script>
-<script src="js/intro.js?v=202611101559"></script>
-<script src="js/chat.js?v=202611101559"></script>
-<script src="js/share.js?v=202611101559"></script>
-<script src="js/app.js?v=202611101559"></script>
+<script src="js/config.js?v=202611101620"></script>
+<script src="js/sfx-data.js?v=202611101620"></script>
+<script src="js/audio.js?v=202611101620"></script>
+<script src="js/store.js?v=202611101620"></script>
+<script src="js/fx.js?v=202611101620"></script>
+<script src="js/scratch.js?v=202611101620"></script>
+<script src="js/player.js?v=202611101620"></script>
+<script src="js/intro.js?v=202611101620"></script>
+<script src="js/chat.js?v=202611101620"></script>
+<script src="js/share.js?v=202611101620"></script>
+<script src="js/app.js?v=202611101620"></script>
 </body>
 </html>
