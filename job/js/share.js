@@ -1,6 +1,6 @@
 /*
- * 「把 Offer 发给朋友」：生成录用通知书海报（canvas 720×1280）和分享链接。
- * 海报上的二维码指向本页，带 ?from=offer&r=角色 id；朋友打开后，职位列表顶部会提示「你的朋友刚被录用为 XX 的主人」。
+ * 「晒晒我招到的秃秃」：生成入职海报（canvas 720×1280）和分享链接。
+ * 海报上的二维码指向本页，带 ?from=offer&r=角色 id；朋友打开后，人才列表顶部会提示「朋友刚招到了 XX」。
  * 链接里只有角色 id，不带任何个人信息。二维码用 js/vendor/qrcode.js（qrcode-generator，MIT）。
  */
 (function () {
@@ -66,7 +66,7 @@
     c.textAlign = 'center';
     c.textBaseline = 'middle';
     c.font = font(800, 20); c.fillText('菇的JOB!', 0, -12);
-    c.font = font(800, 20); c.fillText(special ? '特别录用' : '人事部', 0, 16);
+    c.font = font(800, 20); c.fillText(special ? '特别入职' : '已入职', 0, 16);
     c.restore();
   }
 
@@ -89,10 +89,10 @@
     c.fillStyle = ORANGE; c.fillText('JOB!', 44 + w1, 92);
     var w2 = c.measureText('JOB!').width;
     c.font = font(400, 22);
-    var chipX = 44 + w1 + w2 + 14, chipW = c.measureText('招主人').width + 20;
+    var chipX = 44 + w1 + w2 + 14, chipW = c.measureText('老板版').width + 20;
     c.strokeStyle = '#E6DDCF'; c.lineWidth = 2;
     rr(c, chipX, 62, chipW, 36, 10); c.stroke();
-    c.fillStyle = INK2; c.fillText('招主人', chipX + 10, 88);
+    c.fillStyle = INK2; c.fillText('老板版', chipX + 10, 88);
     if (tutu) c.drawImage(tutu, W - 44 - 72, 36, 72, 72);
 
     // 录用通知书卡片
@@ -108,7 +108,7 @@
 
     c.textAlign = 'center';
     c.fillStyle = INK2; c.font = font(600, 24);
-    c.fillText(special ? '录用通知书 · 特别录用' : '录用通知书', W / 2, 190);
+    c.fillText(special ? '入职海报 · 隐藏款' : '入职海报', W / 2, 190);
 
     // 角色卡面
     var cw = 300, ch2 = Math.round(cw * 2000 / 1432), cx = (W - cw) / 2, cy = 216;
@@ -121,9 +121,11 @@
     drawSeal(c, cx + cw + 30, cy + ch2 - 30, special);
 
     var ty = cy + ch2 + 62;
-    c.fillStyle = '#3A3530'; c.font = font(400, 30);
-    c.fillText('我被录用为', W / 2, ty);
-    var role = '「' + ch.name + '」的主人';
+    var lead = '我招到了一位' + C.job.title;
+    fitText(c, lead, 400, 30, W - 140);
+    c.fillStyle = '#3A3530';
+    c.fillText(lead, W / 2, ty);
+    var role = '「' + ch.name + '」';
     fitText(c, role, 800, 50, W - 140);
     c.fillStyle = INK; c.fillText(role, W / 2, ty + 64);
     var fortune = '今日运势：' + ch.fortune;
@@ -138,7 +140,7 @@
     c.restore();
     c.textAlign = 'left';
     c.fillStyle = INK2; c.font = font(400, 24);
-    c.fillText('入职福利', 80, ly + 52);
+    c.fillText('TA 送我的见面礼', 80, ly + 52);
     c.fillStyle = INK; c.font = font(800, 30);
     c.fillText(C.coupon.name, 80, ly + 96);
     c.textAlign = 'right';
@@ -150,9 +152,9 @@
     var qy = 1060;
     drawQR(c, link(ch), 40, qy, 180);
     c.fillStyle = INK; c.font = font(800, 40);
-    c.fillText('你也来应聘？', 252, qy + 62);
+    c.fillText('你也来当老板？', 252, qy + 62);
     c.fillStyle = INK2; c.font = font(400, 24);
-    c.fillText('扫码挑一只秃秃，拿同款入职福利', 252, qy + 110);
+    c.fillText('扫码招一只秃秃，拿同款见面礼', 252, qy + 110);
     c.fillStyle = INK3; c.font = font(400, 22);
     c.fillText('长按识别二维码', 252, qy + 150);
     return cv;
