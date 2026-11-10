@@ -1,6 +1,6 @@
 /*
  * 版本线 2 · 老板版（v10）：用户是老板，7 只秃秃来应聘「首席情绪价值官」。
- * 第一次进来先看开场主题视频 → 人才列表 → 在线简历 → 和秃秃沟通（面试邀请）→ 面试：刮开简历
+ * 第一次进来先看开场主题视频 → 人才列表 → 在线简历 → 和秃秃沟通（面试邀请）→ 面试：刮开工牌
  * → 发 Offer → 秃秃接受、送见面礼 → 入职确认（领券）→ 跳转抖音 / 天猫。
  * 领券不设门槛：一级页面底部固定券条，二级页面右上角都有「领券」，开场视频和作品集视频下方也有券条。
  * 底部三个标签：人才 / 消息 / 我的。所有二级页面都进浏览器历史，手机返回键和侧滑返回都能用。
@@ -38,7 +38,7 @@
   }
 
   var ui = {
-    tab: 'jobs', filter: 'all',
+    tab: 'jobs', sort: 'rec', filter: 'all',
     pos: -1, chatPos: -1, offerPos: -1,
     sc: null, scPos: -1, scRevealed: false, scHandled: false,
     stopSparkles: null, jumped: false, leaveOpen: false, invite: null,
@@ -153,8 +153,9 @@
 
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   function clock(ms) { var d = new Date(ms || Date.now()); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+  function fmtDist(m) { return m < 1 ? Math.round(m * 100) + 'cm' : m + 'm'; }
 
-  // 隐藏款面试（刮开简历）之前保密：名字、头像、简历都用 config 里的 mask
+  // 隐藏款面试（刮开工牌）之前保密：名字、头像、简历都用 config 里的 mask
   function masked(i) { return !!chAt(i).hidden && S.status(i) < 2; }
   function R(i) {
     var ch = chAt(i), r = ch.resume;
@@ -170,6 +171,12 @@
     var ch = chAt(i);
     if (masked(i)) return '<span class="t-ava is-mask' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><img alt="" src="assets/tutu/front.png"><b>?</b></span>';
     return '<span class="t-ava' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><img alt="" src="assets/figures/' + ch.id + '.png"></span>';
+  }
+  function infoLine(i) {
+    var ch = chAt(i);
+    if (masked(i)) return ch.mask.info;
+    // v12：去掉身高「4cm」和场景（如「菇的餐厅」），只留应届 + 到岗状态
+    return '应届 · ' + (S.status(i) >= 3 ? '已到岗' : '离开盲盒-随时到岗');
   }
   // 状态标签：每种状态都写着字，不只靠颜色区分
   function stChip(i) {
@@ -194,11 +201,12 @@
   }
 
   // ---------- 人才列表 ----------
-  // 还没入职的排前面，已入职的排后面
   function order() {
     var idx = [];
     for (var i = 0; i < S.size; i++) idx.push(i);
-    idx.sort(function (a, b) { return (S.status(a) >= 3) - (S.status(b) >= 3) || a - b; });
+    if (ui.sort === 'near') idx.sort(function (a, b) { return chAt(a).job.dist - chAt(b).job.dist; });
+    else if (ui.sort === 'new') idx.reverse();
+    else idx.sort(function (a, b) { return (S.status(a) >= 3) - (S.status(b) >= 3) || a - b; });
     return idx.filter(function (i) {
       if (ui.filter === 'wait') return S.status(i) < 2;
       if (ui.filter === 'hired') return S.status(i) >= 3;
@@ -216,20 +224,23 @@
     return ['打招呼', false];
   }
 
-  // 人才卡片只留一眼要看的：头像、名字、状态、想做什么、一个按钮（v11 起去掉了基础信息、期望地点、距离、优势和标签）
   function talentCard(i) {
-    var st = S.status(i), r = R(i), hired = st >= 3;
-    // 整张卡片由一层透明按钮负责「看简历」；右边的按钮单独响应（打招呼 / 去面试 / 发 Offer / 看入职确认）
+    var ch = chAt(i), st = S.status(i), r = R(i), hired = st >= 3;
+    // 整张卡片由一层透明按钮负责「看简历」；右下角的按钮单独响应（打招呼 / 去面试 / 发 Offer / 看入职确认）
     var b = document.createElement('div');
     b.className = 'job t-card' + (hired ? ' is-hired' : '') + (masked(i) ? ' is-mask' : '');
+    var want = hired ? '入职礼物：' + ch.job.gift + '（限定收集品）' : '期望：' + r.role + ' · ' + C.job.place;
     var act = cardAction(i);
-    var label = nameOf(i) + '，' + stText(i) + '，想做' + r.role + '，看简历';
+    var label = nameOf(i) + '，' + stText(i) + '，' + want + '，看简历';
     b.innerHTML =
       '<button type="button" class="job-hit" aria-label="' + esc(label) + '"></button>' +
-      avaHtml(i) +
-      '<span class="t-main"><span class="t-r1"><span class="t-name">' + esc(nameOf(i)) + '</span>' + stChip(i) + '</span>' +
-        '<span class="t-role">' + esc(r.role) + '</span></span>' +
-      '<button type="button" class="t-act' + (act[1] ? ' soft' : '') + '"' + (st === 1 ? ' data-nosfx' : '') + '><span>' + act[0] + '</span></button>';
+      '<span class="t-top">' + avaHtml(i) +
+        '<span class="t-main"><span class="t-r1"><span class="t-name">' + esc(nameOf(i)) + '</span>' + stChip(i) + '</span>' +
+        '<span class="t-line">' + esc(infoLine(i)) + '</span>' +
+        '<span class="t-want"><span class="fill">' + esc(want) + '</span><span class="muted">' + fmtDist(ch.job.dist) + '</span></span></span></span>' +
+      (hired ? '' : '<span class="t-adv">优势：' + esc(r.short) + '</span>') +
+      '<span class="t-foot"><span class="tags">' + tagsOf(i).slice(0, 3).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</span>' +
+        '<button type="button" class="t-act' + (act[1] ? ' soft' : '') + '"' + (st === 1 ? ' data-nosfx' : '') + '><span>' + act[0] + '</span></button></span>';
     b.querySelector('.job-hit').addEventListener('click', function () { openResume(i); });
     // 已入职：看入职确认；其余进聊天（聊天里按进度给出「开始面试」「发 Offer」）
     b.querySelector('.t-act').addEventListener('click', function () {
@@ -248,6 +259,9 @@
     $('f-fav-btn').hidden = !favs && ui.filter !== 'fav';
     document.querySelectorAll('.filter').forEach(function (f) {
       f.setAttribute('aria-pressed', f.getAttribute('data-filter') === ui.filter ? 'true' : 'false');
+    });
+    document.querySelectorAll('.sort-tab').forEach(function (t) {
+      t.setAttribute('aria-selected', t.getAttribute('data-sort') === ui.sort ? 'true' : 'false');
     });
     var list = $('jobs-list');
     list.innerHTML = '';
@@ -290,16 +304,22 @@
     $('r-ava').outerHTML = avaHtml(i, 'big').replace('<span class="t-ava', '<span id="r-ava" class="t-ava');
     $('r-name').textContent = nameOf(i);
     $('r-active').innerHTML = stChip(i);
-    $('r-role').textContent = '想做：' + r.role;
-    $('r-adv').textContent = r.short;
+    $('r-info').textContent = mk ? '4cm · 经历保密 · 夜班-随时到岗' : '4cm · 应届 · ' + (st >= 3 ? '已到岗' : '离开盲盒-随时到岗');
+    $('r-home').textContent = '现居：' + (mk ? ch.mask.home : ch.job.scene);
+    $('r-role').textContent = r.role;
+    $('r-start').textContent = mk ? ch.mask.start : '随时到岗';
+    $('r-adv').textContent = r.adv;
     $('r-tags').innerHTML = tagsOf(i).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('');
+    $('r-exp-t').textContent = r.exp[0];
+    $('r-exp-d').textContent = r.exp[1];
     $('r-can').innerHTML = r.can.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
+    $('r-ask').textContent = r.ask;
     // 作品集：隐藏款面试前看不了（视频一看就知道是谁）
     var pf = $('r-pf');
     pf.disabled = mk;
     pf.classList.toggle('is-locked', mk);
     $('r-pf-img').src = 'assets/poster/' + (mk ? 'dream' : ch.id) + '.jpg';
-    $('r-pf-sub').textContent = mk ? '面试后解锁' : '我的工作日常 · 视频';
+    $('r-pf-sub').textContent = mk ? '视频 · 面试后解锁' : '视频 · 30 秒 · 点开就能看';
     pf.setAttribute('aria-label', mk ? '作品集：面试后解锁' : '播放' + ch.name + '的作品集');
     $('r-pf-ico').innerHTML = mk
       ? '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>'
@@ -323,7 +343,7 @@
   // ---------- 和秃秃沟通 ----------
   function fillChatHead(i) {
     $('c-name').textContent = nameOf(i);
-    $('c-who').setAttribute('aria-label', nameOf(i) + '，看简历');
+    $('c-sub').textContent = stText(i) + ' · 期望：' + R(i).role;
   }
 
   function openChat(i) {
@@ -344,7 +364,7 @@
       GJ.chat.render(i, ch);
       setReplies(i);
     }
-    // 先把这张卡面下载好，面试刮简历的时候不用等
+    // 先把这张卡面下载好，面试刮工牌的时候不用等
     GJ.loadImage('assets/cards/' + ch.id + '.jpg', 1).catch(function () {});
   }
 
@@ -357,9 +377,7 @@
   function setReplies(i, waiting) {
     var box = $('replies');
     box.innerHTML = '';
-    // 只在秃秃打字时提示一句；回复按钮出来后就不用解释了
-    $('cf-label').textContent = waiting ? '秃秃正在输入…点聊天区可跳过' : '';
-    $('cf-label').hidden = !waiting;
+    $('cf-label').textContent = waiting ? '秃秃正在输入…（点聊天区可跳过）' : '选一句回复秃秃';
     if (waiting) return;
     var st = S.status(i), list;
     // 第 4 项为 true：这个按钮自己有声音（打开面试会「唰」一声），不再播点击声
@@ -400,7 +418,7 @@
     }
   }
 
-  // ---------- 面试：刮开简历 ----------
+  // ---------- 面试：刮开工牌 ----------
   function sizeScratch() {
     var r = $('sc-area').getBoundingClientRect();
     if (!r.width) return;
@@ -420,15 +438,16 @@
     stopLuck();
     ov.classList.remove('is-luck', 'is-flash', 'is-done');
     card.classList.remove('is-revealed', 'is-ready', 'is-holo');
-    $('sc-title').textContent = '面试 · ' + nameOf(i);
+    $('sc-title').textContent = '面试中 · ' + nameOf(i);
+    $('sc-h2').textContent = ch.hidden ? '刮开工牌，看看隐藏款到底是谁' : '刮开 TA 的工牌，就是盲盒里那张身份卡';
     $('sc-head').hidden = false;
     $('sc-foot').hidden = false;
     $('sc-done').hidden = true;
     $('sc-meter').style.transform = 'scaleX(0)';
     $('sc-pct').textContent = '已刮 0%';
-    $('sc-hint').textContent = '简历加载中……';
+    $('sc-hint').textContent = '工牌加载中……';
     $('scratch-front').removeAttribute('src');
-    $('scratch-front').alt = nameOf(i) + '的简历';
+    $('scratch-front').alt = nameOf(i) + '的工牌';
     ov.hidden = false;
     void ov.offsetWidth;
     ov.classList.add('is-in');
@@ -450,9 +469,9 @@
       front: 'assets/cards/' + ch.id + '.jpg',
       frontEl: $('scratch-front'),
       threshold: C.revealAt,
-      // 简历好了才开始下载视频，不和卡面抢网速
+      // 工牌好了才开始下载视频，不和卡面抢网速
       onReady: function () {
-        if (!said) $('sc-hint').textContent = '刮到 70% 自动翻开';
+        if (!said) $('sc-hint').textContent = '刮到 70% 自动翻开，刮的时候秃秃会「嘟」';
         GJ.player.prepare(ch);
       },
       onFirstTouch: function () {
@@ -470,7 +489,7 @@
     sc.ready.catch(function (err) {
       log('scratch failed ' + (err && err.message));
       if (ui.sc !== sc) return;
-      toast('网络有点慢，简历已直接翻开');
+      toast('网络有点慢，工牌已直接翻开');
       $('scratch-front').src = 'assets/cards/' + ch.id + '.jpg';
       sc.reveal(false);
     });
@@ -487,8 +506,8 @@
     card.classList.add('is-revealed');
     if (ch.hidden) luckReveal();
     else { GJ.audio.play('sparkle', { gain: 0.8 }); GJ.audio.buzz(30, 0); }
-    $('sc-title').textContent = '面试 · ' + ch.name;
-    $('sc-name').textContent = ch.hidden ? '隐藏款：「' + ch.name + '」！' : '「' + ch.name + '」';
+    $('sc-title').textContent = '面试中 · ' + ch.name;
+    $('sc-name').textContent = ch.hidden ? '隐藏款揭晓：「' + ch.name + '」！' : '工牌验过了：「' + ch.name + '」';
     $('sc-fortune').textContent = ch.fortune;
     $('sc-head').hidden = true;
     $('sc-foot').hidden = true;
@@ -597,6 +616,7 @@
     $('o-fig').alt = ch.name + '实物照';
     $('o-role').textContent = ch.name;
     $('o-job').textContent = C.job.title;
+    $('o-perk').textContent = C.job.perk;
     $('o-gift').textContent = ch.job.gift;
     $('o-seal-2').textContent = ch.hidden ? '特别入职' : '已入职';
     $('o-seal').setAttribute('aria-label', ch.hidden ? '菇的JOB! 特别入职 印章' : '菇的JOB! 已入职 印章');
@@ -711,7 +731,7 @@
     ban.className = 'invite-banner';
     ban.setAttribute('role', 'note');
     ban.innerHTML = '<img alt="" src="assets/figures/' + ch.id + '.png">' +
-      '<div><b>朋友刚招到了「' + esc(ch.name) + '」</b><span>你也来招一只，见面礼同款 ¥' + C.coupon.amount + '</span></div>';
+      '<div><b>朋友刚招到「' + esc(ch.name) + '」当' + esc(C.job.title) + '</b><span>你也来招一只秃秃，见面礼同款 ¥' + C.coupon.amount + '</span></div>';
     var x = document.createElement('button');
     x.type = 'button'; x.className = 'icon-btn ghost'; x.setAttribute('aria-label', '关闭提示');
     x.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
@@ -745,7 +765,7 @@
     var bar = j.querySelector('.jump-bar i');
     bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = '';
     syncInert();
-    // 领券确认：和刮简历同一段秃秃原声（source/刮刮乐.mp3），原速不变调
+    // 领券确认：和刮工牌同一段秃秃原声（source/刮刮乐.mp3），原速不变调
     GJ.audio.play('du', { gain: 0.9 });
     GJ.audio.buzz(20, 0);
     jumpTimers.push(setTimeout(function () { window.location.href = url; }, 1000));
@@ -794,12 +814,12 @@
     }
     rows.forEach(function (i) {
       var st = S.status(i);
-      var preview = st === 1 ? '等你开始面试' : st === 2 ? '发来了作品集' : '已入职，见面礼给你了';
+      var preview = st === 1 ? '[面试邀请] TA 已接受，等你开始面试' : st === 2 ? '[作品集] 我的工作日常' : '[Offer] 已接受，见面礼给你了';
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'msg-row';
       b.innerHTML = avaHtml(i, 'mid') +
-        '<span class="msg-main"><span class="msg-top"><b>' + esc(nameOf(i)) + '</b>' +
+        '<span class="msg-main"><span class="msg-top"><b>' + esc(nameOf(i)) + '</b><span class="muted">期望：' + esc(R(i).role) + '</span>' +
         '<span class="fill"></span><span class="muted">' + clock(S.startedAt(i)) + '</span></span>' +
         '<span class="msg-prev"><span>' + esc(preview) + '</span>' + (st === 1 ? '<span class="st-wait">待面试</span>' : '') + '</span></span>';
       b.addEventListener('click', function () { openChat(i); });
@@ -817,7 +837,7 @@
   // ---------- 我的（老板档案） ----------
   function renderMine() {
     var hired = S.hired();
-    $('m-sub').textContent = '正在招：' + C.job.title;
+    $('m-sub').textContent = C.job.place + ' · 正在招：' + C.job.title;
     $('m-hired').textContent = hired + '/' + S.size;
     $('m-wait').textContent = S.toInterview();
     $('m-fav').textContent = S.favCount();
@@ -848,7 +868,7 @@
     });
     var all = S.allHired();
     $('btn-reshuffle').disabled = !all;
-    $('reshuffle-tip').textContent = all ? '7 只都入职啦，可以洗牌了' : '7 只都入职后可用';
+    $('reshuffle-tip').textContent = all ? '7 只都入职啦，可以洗牌了' : '7 只都入职后可以重新洗牌';
   }
 
   // 洗牌会清空「我招到的秃秃」和聊天记录，先确认一次
@@ -857,7 +877,7 @@
   function reshuffle() {
     if (!S.allHired()) return;
     S.reshuffle();
-    ui.filter = 'all';
+    ui.filter = 'all'; ui.sort = 'rec';
     GJ.audio.play('slide', { gain: 0.9 });
     switchTab('jobs');
     refreshAll();
@@ -889,17 +909,19 @@
   function ruleItems() {
     var cp = C.coupon;
     return [
-      cp.name + '：' + cp.threshold + '，立减 ¥' + cp.amount + '，' + cp.validity + '。',
-      '在抖音、天猫的' + cp.store + '使用。',
-      '领券不用先玩；招到哪只都是同一张券，不叠加。',
-      '面试刮简历是页面小游戏，和实体盲盒的款式、概率无关。',
-      '声音可以在右上角或「我的」里关掉。',
+      cp.name + '：立减 ¥' + cp.amount + '，' + cp.threshold + '，' + cp.validity + '。',
+      '适用店铺：' + cp.store + '（抖音、天猫）。',
+      '领券不用先玩；不管招到哪只秃秃，见面礼都是同一张券，多招不叠加。',
+      '7 只秃秃每一轮各来应聘一次；面试刮工牌只是页面小游戏，和实体盲盒的款式概率无关，实体盲盒概率以销售页公示为准。',
+      '页面有音效和视频声音，可以点右上角或在「我的」里关掉。',
     ];
   }
   function renderRules() {
-    var list = $('rules');
-    list.innerHTML = '';
-    ruleItems().forEach(function (t) { var li = document.createElement('li'); li.textContent = t; list.appendChild(li); });
+    ['rules', 'cp-rules'].forEach(function (id) {
+      var list = $(id);
+      list.innerHTML = '';
+      ruleItems().forEach(function (t) { var li = document.createElement('li'); li.textContent = t; list.appendChild(li); });
+    });
   }
 
   function showSheet(name) {
@@ -973,6 +995,9 @@
     $('btn-mute').addEventListener('click', function () { setMuted(!GJ.audio.isMuted()); });
     $('sw-sound').addEventListener('click', function () { setMuted(!GJ.audio.isMuted()); });
 
+    document.querySelectorAll('.sort-tab').forEach(function (t) {
+      t.addEventListener('click', function () { ui.sort = t.getAttribute('data-sort'); renderJobs(); $('jobs-list').scrollTop = 0; });
+    });
     document.querySelectorAll('.filter').forEach(function (f) {
       f.addEventListener('click', function () { ui.filter = f.getAttribute('data-filter'); renderJobs(); $('jobs-list').scrollTop = 0; });
     });
@@ -989,7 +1014,7 @@
       if (S.status(i) >= 3) goOffer(i); else openChat(i);
     });
     $('r-pf').addEventListener('click', function () { if (ui.pos >= 0) openPV(ui.pos); });
-    $('c-who').addEventListener('click', chatToResume);
+    $('c-resume').addEventListener('click', chatToResume);
 
     $('sc-close').addEventListener('click', function () { nav.back(); });
     $('sc-take').addEventListener('click', function () { nav.back(); });
@@ -1093,10 +1118,13 @@
   function fillStatic() {
     var cp = C.coupon;
     $('post-title').textContent = C.job.title;
+    $('post-perk').textContent = C.job.perk + ' · ' + C.job.place;
+    $('c-job').textContent = C.job.title;
+    $('c-perk').textContent = ' · ' + C.job.perk;
     $('cb-name').textContent = cp.name + ' ¥' + cp.amount;
     $('cb-sub').textContent = ' · ' + cp.threshold;
     $('coupon-bar').setAttribute('aria-label', '领券：' + cp.name + ' ' + cp.amount + ' 元，' + cp.threshold);
-    $('cp-h').textContent = '秃秃送你的见面礼';
+    $('cp-h').textContent = cp.name;
     $('pv-strip-text').textContent = stripText();
   }
 

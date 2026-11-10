@@ -1,7 +1,7 @@
 /*
  * 本地存档（localStorage）。不需要登录，也不上传任何数据。
  * 7 只秃秃是一副牌：列表上每个位置背后固定是一只秃秃，7 只都入职后可以洗牌再招一轮。
- * 每只秃秃的进度：0 没聊过 → 1 已约面试、简历还没刮 → 2 面试过（简历已刮开）→ 3 已入职（Offer 已接受）
+ * 每只秃秃的进度：0 没聊过 → 1 已约面试、工牌还没刮 → 2 面试过（工牌已刮开）→ 3 已入职（Offer 已接受）
  * （v9 之前的存档里 2 = 已录用、3 = Offer 已发，数字含义正好对得上，不用迁移）
  */
 (function () {
@@ -69,7 +69,7 @@
     hired: function () { return count(function (i) { return data.st[i] >= 3; }); },
     // 还没面试（没聊过 + 已约面试）
     toInterview: function () { return count(function (i) { return (data.st[i] || 0) < 2; }); },
-    // 已约面试、简历还没刮：消息标签上的红点
+    // 已约面试、工牌还没刮：消息标签上的红点
     waiting: function () { return count(function (i) { return data.st[i] === 1; }); },
     untouched: function () { return count(function (i) { return !data.st[i]; }); },
     favCount: function () { return count(function (i) { return !!data.fav[i]; }); },
