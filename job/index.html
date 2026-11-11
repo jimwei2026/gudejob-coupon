@@ -7,7 +7,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#FFFFFF">
 <title>菇的JOB! 招秃秃</title>
-<link rel="stylesheet" href="css/app.css?v=202611111621">
+<link rel="stylesheet" href="css/app.css?v=202611111656">
 </head>
 <body>
 <div class="app" id="app">
@@ -388,6 +388,7 @@
       <button class="icon-btn dark" id="intro-sound" type="button" aria-label="打开声音" aria-pressed="false" hidden>
         <svg class="i-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.2L12 5.6v12.8l-4.8-3.9H4z" fill="currentColor"/><path d="M16 9.5l5 5m0-5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         <svg class="i-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.2L12 5.6v12.8l-4.8-3.9H4z" fill="currentColor"/><path d="M15.5 8.6a4.6 4.6 0 0 1 0 6.8M18 6.2a8 8 0 0 1 0 11.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span class="intro-sound-t" aria-hidden="true">开声音</span>
       </button>
       <button class="intro-skip" id="intro-skip" type="button">跳过</button>
     </div>
@@ -407,11 +408,7 @@
         <span class="intro-rail"><i id="intro-fill"></i></span>
         <span class="pv-time" id="intro-dur">0:00</span>
       </div>
-      <button class="pv-strip" id="intro-strip" type="button">
-        <span class="pv-strip-tag">券</span>
-        <span class="strip-txt"><b id="intro-strip-name">接 TA 回家券 ¥5</b><small id="intro-strip-sub">满 69 可用 · 不用先玩也能领</small></span>
-        <span class="pv-strip-go">领券</span>
-      </button>
+      <button class="intro-ask-coupon" id="intro-strip" type="button" aria-label="直接领券带回家，¥5，满 69 可用"><span class="pv-strip-tag" aria-hidden="true">券</span><span id="intro-strip-t">直接领券带回家</span><b id="intro-strip-amt">¥5</b></button>
     </div>
   </div>
 
@@ -481,16 +478,16 @@
   }, true);
 })();
 </script>
-<script src="js/config.js?v=202611111621"></script>
-<script src="js/sfx-data.js?v=202611111621"></script>
-<script src="js/audio.js?v=202611111621"></script>
-<script src="js/store.js?v=202611111621"></script>
-<script src="js/fx.js?v=202611111621"></script>
-<script src="js/scratch.js?v=202611111621"></script>
-<script src="js/player.js?v=202611111621"></script>
-<script src="js/intro.js?v=202611111621"></script>
-<script src="js/chat.js?v=202611111621"></script>
-<script src="js/share.js?v=202611111621"></script>
-<script src="js/app.js?v=202611111621"></script>
+<script src="js/config.js?v=202611111656"></script>
+<script src="js/sfx-data.js?v=202611111656"></script>
+<script src="js/audio.js?v=202611111656"></script>
+<script src="js/store.js?v=202611111656"></script>
+<script src="js/fx.js?v=202611111656"></script>
+<script src="js/scratch.js?v=202611111656"></script>
+<script src="js/player.js?v=202611111656"></script>
+<script src="js/intro.js?v=202611111656"></script>
+<script src="js/chat.js?v=202611111656"></script>
+<script src="js/share.js?v=202611111656"></script>
+<script src="js/app.js?v=202611111656"></script>
 </body>
 </html>

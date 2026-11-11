@@ -9,6 +9,10 @@
   var N = GJ.config.characters.length;
   var ids = GJ.config.characters.map(function (c) { return c.id; });
   var data = load();
+  // 开场视频的版本号（config.intro.rev）。存档里记的是看过的版本号；v18 之前记的是 true，算第 1 版。
+  // 换了新开场把 rev 加 1：看过旧开场的人会自动再播一次新的（只播一次），游戏进度不受影响。
+  var INTRO_REV = Math.max(1, Number((GJ.config.intro || {}).rev) || 1);
+  function introRev(v) { return v === true ? 1 : (typeof v === 'number' ? v : 0); }
 
   function shuffle(a) {
     a = a.slice();
@@ -25,7 +29,7 @@
       st: fill(0), t0: fill(0), fav: fill(false),
       leave: keep ? keep.leave : false,
       muted: keep ? keep.muted : false,
-      intro: keep ? !!keep.intro : false,
+      intro: keep ? (keep.intro || false) : false,   // 洗牌保留「看过第几版开场」，不会因此重播
     };
   }
   function fill(v) { var a = []; for (var i = 0; i < N; i++) a.push(v); return a; }
@@ -79,8 +83,8 @@
     markLeaveShown: function () { data.leave = true; save(); },
     muted: function () { return !!data.muted; },
     setMuted: function (m) { data.muted = !!m; save(); },
-    // 开场主题视频是否已经看过（看完、跳过、点券条都算）
-    introSeen: function () { return !!data.intro; },
-    markIntroSeen: function () { if (!data.intro) { data.intro = true; save(); } },
+    // 当前这版开场主题视频是否已经看过（看完、跳过、点券条、选「还是不看」都算）
+    introSeen: function () { return introRev(data.intro) >= INTRO_REV; },
+    markIntroSeen: function () { if (introRev(data.intro) < INTRO_REV) { data.intro = INTRO_REV; save(); } },
   };
 })();
