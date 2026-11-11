@@ -1145,7 +1145,9 @@
     switchTab('jobs');
     refreshAll();
     // 第一次进来先看开场主题视频（看过就直接进人才主页）
-    if (C.intro && C.intro.enabled !== false && !S.introSeen()) showIntro(true);
+    // v16：链接带 ?intro=1 时每次打开都先播（发给别人看效果用），不清进度
+    var forceIntro = /[?&]intro=1(?:&|#|$)/.test(location.search);
+    if (C.intro && C.intro.enabled !== false && (forceIntro || !S.introSeen())) showIntro(true);
     syncInert();
     setTimeout(preloadCards, 1200);
   }
