@@ -369,9 +369,12 @@
     </div>
   </div>
 
-  <!-- ========== 开场主题视频（第一次进来时） ========== -->
-  <div class="intro" id="intro" hidden role="dialog" aria-modal="true" aria-label="开场主题视频">
-    <video id="intro-video" playsinline webkit-playsinline muted preload="auto" hidden></video>
+  <!-- ========== 开场互动视频（第一次进来时） ========== -->
+  <!-- 秃秃来面试 → 问「要看秃秃的简历吗？」→ 看：谢谢老板 → 人才主页；不看：秃秃求情 → 再问一次（好吧，看看简历 / 直接领券带回家 / 还是不看＝退出 H5） -->
+  <div class="intro" id="intro" hidden role="dialog" aria-modal="true" aria-label="开场互动视频">
+    <video class="intro-clip" id="intro-video" data-clip="open" playsinline webkit-playsinline muted preload="auto" hidden></video>
+    <video class="intro-clip" id="intro-video-no" data-clip="no" playsinline webkit-playsinline muted preload="none" hidden></video>
+    <video class="intro-clip" id="intro-video-yes" data-clip="yes" playsinline webkit-playsinline muted preload="none" hidden></video>
     <!-- 视频还没给到时的占位画面：讲清楚这一波的主题 -->
     <div class="intro-ph" id="intro-ph">
       <img src="assets/tutu/wave.png" alt="">
@@ -390,6 +393,13 @@
     <button class="pv-play" id="intro-play" type="button" aria-label="播放" hidden>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>
     </button>
+    <!-- 选择：视频停在最后一帧，问老板看不看简历（字幕在画面上方，选项放下半部分不挡字幕） -->
+    <div class="intro-ask" id="intro-ask" role="group" aria-label="要看秃秃的简历吗？" hidden>
+      <p class="intro-ask-q" id="intro-ask-q">要看秃秃的简历吗？</p>
+      <button class="btn light wide" id="intro-yes" type="button">看简历</button>
+      <button class="intro-ask-coupon" id="intro-coupon" type="button" hidden><span class="pv-strip-tag" aria-hidden="true">券</span><span id="intro-coupon-t">直接领券带回家</span><b id="intro-coupon-amt">¥5</b></button>
+      <button class="btn wide intro-ask-no" id="intro-no" type="button">不看</button>
+    </div>
     <div class="intro-bottom">
       <div class="intro-prog" aria-hidden="true">
         <span class="pv-time" id="intro-cur">0:00</span>
@@ -401,7 +411,6 @@
         <span class="strip-txt"><b id="intro-strip-name">接 TA 回家券 ¥5</b><small id="intro-strip-sub">满 69 可用 · 不用先玩也能领</small></span>
         <span class="pv-strip-go">领券</span>
       </button>
-      <p class="intro-note">播完自动进入人才主页</p>
     </div>
   </div>
 

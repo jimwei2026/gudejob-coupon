@@ -633,18 +633,39 @@
     nav.push('coupon', function () { closePage('pg-coupon'); });
   }
 
-  // ---------- 开场主题视频 ----------
+  // ---------- 开场互动视频 ----------
   function showIntro(first) {
     if (!first) nav.push('intro', function () { GJ.intro.close(); });
     GJ.intro.show({
       onClose: function (kind) {
         S.markIntroSeen();
+        if (kind === 'exit') { leaveH5(first); return; }
         var then = kind === 'coupon' ? openCoupon : null;
         if (first) { syncInert(); setTimeout(syncInert, 300); if (then) then(); }
         else nav.dismissed('intro', then);
       },
     });
     syncInert();
+  }
+
+  // 开场选了「还是不看」：直接离开 H5（刚给过「直接领券带回家」，不再弹领券提醒）。
+  // App 提供 SowiiBridge.close() 时由 App 关掉页面；浏览器里退回打开 H5 之前的页面；
+  // 退不了（比如直接打开的网页、App 还没接 close）就留在人才主页，提示一句
+  function leaveH5(first) {
+    S.markLeaveShown();
+    syncInert();
+    var b = window.SowiiBridge;
+    if (b && typeof b.close === 'function') {
+      try { b.close(); return; } catch (e) { /* 走下面的兜底 */ }
+    }
+    var st = history.state, armed = st && typeof st.gjd === 'number';
+    var steps = nav.depth() + (armed ? 2 : 1);
+    try { history.go(-steps); } catch (e) { /* 忽略 */ }
+    setTimeout(function () {
+      if (document.hidden) return;
+      if (!first) nav.dismissed('intro');
+      toast(C.intro.exitToast || '秃秃先退下啦，想看简历随时回来');
+    }, 500);
   }
 
   // ---------- 晒晒我招到的秃秃（拉新） ----------
@@ -1145,7 +1166,9 @@
     switchTab('jobs');
     refreshAll();
     // 第一次进来先看开场主题视频（看过就直接进人才主页）
-    if (C.intro && C.intro.enabled !== false && !S.introSeen()) showIntro(true);
+    // v16：链接带 ?intro=1 时每次打开都先播（发给别人看效果用），不清进度
+    var forceIntro = /[?&]intro=1(?:&|#|$)/.test(location.search);
+    if (C.intro && C.intro.enabled !== false && (forceIntro || !S.introSeen())) showIntro(true);
     syncInert();
     setTimeout(preloadCards, 1200);
   }
