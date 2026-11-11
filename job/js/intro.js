@@ -5,18 +5,19 @@
  *     不看   → no（老板再考虑一下嘛？菇吃得很少的！）→ 再问一次：
  *                好吧，看看简历 → yes → 人才主页
  *                直接领券带回家 → 领券页
- *                还是不看       → 退出 H5（onClose('exit')，由 app.js 处理）
+ *                还是不看       → 离开 H5，不进人才主页（v21：先换成道别画面，再 onLeave() 由 app.js 关页面 / 退回上一页；
+ *                                 都做不到就停在道别画面，只有「重新看看」）
  * 视频铺满全屏，券条一直压在视频下方（第二次问时券条变成选项「直接领券带回家」），右上角可以跳过（进人才主页）。
  * v20 声音默认打开（「我的」里关了声音就静音进来）。浏览器不让带声音自动播放时（iPhone Safari、App 没做设置）
  *   改成静音接着播，右上角按钮带字「开声音」；点画面、点按钮、或者做选择都会把声音打开，后面的片段带声音。
- * v20 选项放在画面中间（秃秃脸的正下方，config.intro.askAt），券条只写一行「券 直接领券带回家 ¥5」。
+ * v20 券条只写一行「券 直接领券带回家 ¥5」。选项在底部、券条上面（v20 试过放画面中间，v21 放回底部）。
  * config.intro.clips.open 留空时放占位画面（秃秃 + 一句主题），placeholderSeconds 秒后自动进主页。
  * 后面的片段（no / yes）缺了或放不出来：跳过这段，接着往下走。
  */
 (function () {
   var C = GJ.config;
   var el = {}, open = false, opts = {}, phTimer = 0, phStart = 0, phRaf = 0, primeTimer = 0;
-  var vids = {}, cur = '', asking = 0, sound = true, autoMuted = false, bottomEl = null;
+  var vids = {}, cur = '', asking = 0, bye = false, sound = true, autoMuted = false;
 
   function $(id) { return document.getElementById(id); }
   function fmt(s) {
@@ -46,7 +47,8 @@
     el.coupon = $('intro-coupon');
     vids = { open: $('intro-video'), no: $('intro-video-no'), yes: $('intro-video-yes') };
 
-    bottomEl = el.root.querySelector('.intro-bottom');
+    el.bye = $('intro-bye');
+    el.again = $('intro-again');
     var cp = C.coupon;
     var st = cfg().stripText || (cfg().ask2 || {}).coupon || '直接领券带回家';
     $('intro-strip-t').textContent = st;
@@ -62,16 +64,16 @@
       v.addEventListener('timeupdate', function () { if (k === cur) paintVideo(); });
       v.addEventListener('loadedmetadata', function () { if (k === cur) paintVideo(); });
       v.addEventListener('playing', function () { if (k === cur) el.play.hidden = true; });
-      v.addEventListener('ended', function () { if (open && k === cur && !asking) next(k); });
+      v.addEventListener('ended', function () { if (open && k === cur && !asking && !bye) next(k); });
       // 放不出来：开头改成占位画面（照样能领券、能进主页）；后面的片段跳过，接着往下走
       v.addEventListener('error', function () {
-        if (!open || k !== cur || asking) return;
+        if (!open || k !== cur || asking || bye) return;
         if (k === 'open') usePlaceholder(); else next(k);
       });
       // 点画面暂停 / 继续；停在最后一帧等老板选的时候不响应（不然会从头再放）。
       // 被浏览器静音了的时候，点画面是打开声音（短视频的习惯），不暂停
       v.addEventListener('click', function () {
-        if (k !== cur || asking) return;
+        if (k !== cur || asking || bye) return;
         if (autoMuted) { soundOn(); v.muted = false; if (v.paused) playVideo(); return; }
         if (v.paused) playVideo(); else { v.pause(); el.play.hidden = false; }
       });
@@ -82,16 +84,16 @@
     el.coupon.addEventListener('click', function () { finish('coupon'); });
     el.yes.addEventListener('click', function () { answer(true); });
     el.no.addEventListener('click', function () { answer(false); });
+    el.again.addEventListener('click', again);
     el.sound.addEventListener('click', function () {
       var v = vid();
       sound = !sound;
       autoMuted = false;
       if (v) v.muted = !sound;
       paintSound();
-      if (v && sound && !asking) v.play().catch(function () {});
+      if (v && sound && !asking && !bye) v.play().catch(function () {});
     });
     el.play.addEventListener('click', playVideo);
-    window.addEventListener('resize', function () { if (open && asking) placeAsk(); });
     document.addEventListener('visibilitychange', function () {
       var v = vid();
       if (document.hidden && open && v && !v.paused) { v.pause(); if (!asking) el.play.hidden = false; }
@@ -206,24 +208,7 @@
     el.root.classList.add('is-asking');
     el.root.classList.toggle('ask-2', n === 2);
     el.ask.hidden = false;
-    placeAsk();
     setTimeout(function () { if (open && asking === n) el.yes.focus({ preventScroll: true }); }, 60);
-  }
-  // 选项放在视频画面 askAt 的高度（画面中间、秃秃脸的正下方，不挡脸）。视频按 cover 铺满、靠上对齐，
-  // 画面实际高度 = max(屏幕高, 屏幕宽 × 视频高宽比)；屏幕矮放不下时往上挪，不压底部券条
-  function placeAsk() {
-    var box = el.root.getBoundingClientRect();
-    if (!box.height) return;
-    var v = vid();
-    var ratio = v && v.videoWidth ? v.videoHeight / v.videoWidth : 16 / 9;
-    var at = Number(cfg().askAt);
-    if (!(at > 0 && at < 1)) at = 0.53;
-    var top = Math.max(box.height, box.width * ratio) * at;
-    var sb = el.strip.getBoundingClientRect();
-    var floor = sb.height ? sb.top - box.top - 16
-      : box.height - (bottomEl ? parseFloat(getComputedStyle(bottomEl).paddingBottom) || 16 : 16);
-    top = Math.max(64, Math.min(top, floor - el.ask.offsetHeight));
-    el.root.style.setProperty('--ask-top', Math.round(top) + 'px');
   }
   function clearAsk() {
     asking = 0;
@@ -237,7 +222,36 @@
     soundOn();   // 做选择算一次点击：被浏览器关掉的声音这时打开，接下来的片段带声音
     if (yes) { if (!playClip('yes')) finish('ended'); return; }
     if (n === 1) { if (!playClip('no')) ask(2); return; }
-    finish('exit');
+    sayBye();
+  }
+
+  // 「还是不看」：先换成道别画面（停在秃秃最后一帧），再让 app.js 离开 H5。
+  // 离开成功页面就没了；离开不了（直接打开的网页、App 还没接 close）就停在这里，不进人才主页
+  function sayBye() {
+    var b = cfg().bye || {};
+    clearAsk();
+    stopVideos();
+    bye = true;
+    el.play.hidden = true;
+    el.root.classList.add('is-bye');
+    el.bye.hidden = false;
+    $('intro-bye-t').textContent = b.t || '秃秃先退下啦';
+    $('intro-bye-s').textContent = b.s || '';
+    $('intro-bye-s').hidden = !b.s;
+    el.again.textContent = b.again || '重新看看';
+    setTimeout(function () { if (open && bye) el.again.focus({ preventScroll: true }); }, 60);
+    if (opts.onLeave) opts.onLeave();
+  }
+  function clearBye() {
+    bye = false;
+    el.bye.hidden = true;
+    el.root.classList.remove('is-bye');
+  }
+  // 道别画面上的「重新看看」：误触了可以从头再来
+  function again() {
+    if (!open || !bye) return;
+    clearBye();
+    playClip('open');
   }
 
   function stopPlaceholder() { clearTimeout(phTimer); cancelAnimationFrame(phRaf); }
@@ -263,7 +277,7 @@
     phTimer = setTimeout(function () { finish('ended'); }, total);
   }
 
-  // o.onClose(kind)：kind 是 'skip' | 'ended' | 'coupon' | 'exit'（还是不看，要离开 H5）
+  // o.onClose(kind)：kind 是 'skip' | 'ended' | 'coupon'；o.onLeave()：选了「还是不看」，要离开 H5（开场停在道别画面）
   function show(o) {
     opts = o || {};
     open = true;
@@ -271,6 +285,7 @@
     requestAnimationFrame(function () { el.root.classList.add('is-open'); });
     stopPlaceholder();
     clearAsk();
+    clearBye();
     // v20 默认带声音（「我的」里关了声音就静音进来）；浏览器不让时 playVideo 会自动改成静音播
     sound = !(GJ.store && GJ.store.muted && GJ.store.muted());
     autoMuted = false;
@@ -293,7 +308,7 @@
     clearTimeout(primeTimer);
     stopVideos();
     el.root.classList.remove('is-open');
-    setTimeout(function () { if (!open) { el.root.hidden = true; clearAsk(); } }, 260);
+    setTimeout(function () { if (!open) { el.root.hidden = true; clearAsk(); clearBye(); } }, 260);
   }
 
   function finish(kind) {

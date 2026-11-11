@@ -7,7 +7,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#FFFFFF">
 <title>菇的JOB! 招秃秃</title>
-<link rel="stylesheet" href="css/app.css?v=202611111656">
+<link rel="stylesheet" href="css/app.css?v=202611111723">
 </head>
 <body>
 <div class="app" id="app">
@@ -109,7 +109,7 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
       <p class="bar-title">在线简历</p>
-      <button class="coupon-pill" type="button" data-coupon aria-label="领券"><span><i aria-hidden="true">券</i>领券</span></button>
+      <span class="bar-gap" aria-hidden="true"></span>
     </header>
     <div class="scroll rs-body">
       <section class="rs-top">
@@ -155,6 +155,8 @@
         <span>感兴趣</span>
       </button>
       <button class="btn" id="r-chat" type="button">立即沟通</button>
+      <!-- v21 领券从右上角挪到底栏右侧：拇指够得着，和聊天页底栏的领券在同一个位置 -->
+      <button class="d-coupon" id="r-coupon" type="button" data-coupon><i aria-hidden="true">券</i>领券</button>
     </footer>
   </section>
 
@@ -395,12 +397,17 @@
     <button class="pv-play" id="intro-play" type="button" aria-label="播放" hidden>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>
     </button>
-    <!-- 选择：视频停在最后一帧，问老板看不看简历（字幕在画面上方，选项放下半部分不挡字幕） -->
+    <!-- 选择：视频停在最后一帧，问老板看不看简历（字幕在画面上方，选项放在底部不挡字幕） -->
     <div class="intro-ask" id="intro-ask" role="group" aria-label="要看秃秃的简历吗？" hidden>
       <p class="intro-ask-q" id="intro-ask-q">要看秃秃的简历吗？</p>
       <button class="btn light wide" id="intro-yes" type="button">看简历</button>
       <button class="intro-ask-coupon" id="intro-coupon" type="button" hidden><span class="pv-strip-tag" aria-hidden="true">券</span><span id="intro-coupon-t">直接领券带回家</span><b id="intro-coupon-amt">¥5</b></button>
       <button class="btn wide intro-ask-no" id="intro-no" type="button">不看</button>
+    </div>
+    <!-- v21「还是不看」：页面关不掉时停在这里道别，不进人才主页 -->
+    <div class="intro-bye" id="intro-bye" hidden>
+      <div role="status"><p class="intro-bye-t" id="intro-bye-t"></p><p class="intro-bye-s" id="intro-bye-s"></p></div>
+      <button class="btn light wide" id="intro-again" type="button">重新看看</button>
     </div>
     <div class="intro-bottom">
       <div class="intro-prog" aria-hidden="true">
@@ -478,16 +485,16 @@
   }, true);
 })();
 </script>
-<script src="js/config.js?v=202611111656"></script>
-<script src="js/sfx-data.js?v=202611111656"></script>
-<script src="js/audio.js?v=202611111656"></script>
-<script src="js/store.js?v=202611111656"></script>
-<script src="js/fx.js?v=202611111656"></script>
-<script src="js/scratch.js?v=202611111656"></script>
-<script src="js/player.js?v=202611111656"></script>
-<script src="js/intro.js?v=202611111656"></script>
-<script src="js/chat.js?v=202611111656"></script>
-<script src="js/share.js?v=202611111656"></script>
-<script src="js/app.js?v=202611111656"></script>
+<script src="js/config.js?v=202611111723"></script>
+<script src="js/sfx-data.js?v=202611111723"></script>
+<script src="js/audio.js?v=202611111723"></script>
+<script src="js/store.js?v=202611111723"></script>
+<script src="js/fx.js?v=202611111723"></script>
+<script src="js/scratch.js?v=202611111723"></script>
+<script src="js/player.js?v=202611111723"></script>
+<script src="js/intro.js?v=202611111723"></script>
+<script src="js/chat.js?v=202611111723"></script>
+<script src="js/share.js?v=202611111723"></script>
+<script src="js/app.js?v=202611111723"></script>
 </body>
 </html>
