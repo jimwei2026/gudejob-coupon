@@ -7,7 +7,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#FFFFFF">
 <title>菇的JOB! 招秃秃</title>
-<link rel="stylesheet" href="css/app.css?v=202611111014">
+<link rel="stylesheet" href="css/app.css?v=202611111156">
 </head>
 <body>
 <div class="app" id="app">
@@ -372,8 +372,6 @@
 
   <!-- ========== 开场主题视频（第一次进来时） ========== -->
   <div class="intro" id="intro" hidden role="dialog" aria-modal="true" aria-label="开场主题视频">
-    <!-- 视频两边的空白用同一画面的模糊放大版填满（屏幕比 9:16 更长时会有空白） -->
-    <canvas class="intro-amb" id="intro-amb" width="36" height="64" aria-hidden="true"></canvas>
     <video id="intro-video" playsinline webkit-playsinline muted preload="auto" hidden></video>
     <!-- 视频还没给到时的占位画面：讲清楚这一波的主题 -->
     <div class="intro-ph" id="intro-ph">
@@ -393,12 +391,13 @@
     <button class="pv-play" id="intro-play" type="button" aria-label="播放" hidden>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>
     </button>
+    <!-- v17：进度条在顶部标题栏下面，底部只放券条和提示（不挡视频下方的字幕） -->
+    <div class="intro-prog" aria-hidden="true">
+      <span class="pv-time" id="intro-cur">0:00</span>
+      <span class="intro-rail"><i id="intro-fill"></i></span>
+      <span class="pv-time" id="intro-dur">0:00</span>
+    </div>
     <div class="intro-bottom">
-      <div class="intro-prog" aria-hidden="true">
-        <span class="pv-time" id="intro-cur">0:00</span>
-        <span class="intro-rail"><i id="intro-fill"></i></span>
-        <span class="pv-time" id="intro-dur">0:00</span>
-      </div>
       <button class="pv-strip" id="intro-strip" type="button">
         <span class="pv-strip-tag">券</span>
         <span class="strip-txt"><b id="intro-strip-name">接 TA 回家券 ¥5</b><small id="intro-strip-sub">满 69 可用 · 不用先玩也能领</small></span>
@@ -474,16 +473,16 @@
   }, true);
 })();
 </script>
-<script src="js/config.js?v=202611111014"></script>
-<script src="js/sfx-data.js?v=202611111014"></script>
-<script src="js/audio.js?v=202611111014"></script>
-<script src="js/store.js?v=202611111014"></script>
-<script src="js/fx.js?v=202611111014"></script>
-<script src="js/scratch.js?v=202611111014"></script>
-<script src="js/player.js?v=202611111014"></script>
-<script src="js/intro.js?v=202611111014"></script>
-<script src="js/chat.js?v=202611111014"></script>
-<script src="js/share.js?v=202611111014"></script>
-<script src="js/app.js?v=202611111014"></script>
+<script src="js/config.js?v=202611111156"></script>
+<script src="js/sfx-data.js?v=202611111156"></script>
+<script src="js/audio.js?v=202611111156"></script>
+<script src="js/store.js?v=202611111156"></script>
+<script src="js/fx.js?v=202611111156"></script>
+<script src="js/scratch.js?v=202611111156"></script>
+<script src="js/player.js?v=202611111156"></script>
+<script src="js/intro.js?v=202611111156"></script>
+<script src="js/chat.js?v=202611111156"></script>
+<script src="js/share.js?v=202611111156"></script>
+<script src="js/app.js?v=202611111156"></script>
 </body>
 </html>

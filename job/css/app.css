@@ -710,13 +710,16 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 /* 开场主题视频 */
 .intro { position: absolute; inset: 0; z-index: 75; background: var(--dark); color: #fff; opacity: 0; transition: opacity .25s; overflow: hidden; touch-action: manipulation; }
 .intro.is-open { opacity: 1; }
-.intro video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #000; display: block; }
+/* v17：视频铺满全屏。屏幕比 9:16 宽时上下要裁掉一点，只裁上面（上面多是空背景），保住下方字幕不被券条盖住 */
+.intro video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; background: #000; display: block; }
 .intro-ph { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 14px; padding: 0 32px 120px; text-align: center; }
 .intro-ph img { width: 150px; height: auto; animation: ph-bob 2.4s ease-in-out infinite; }
 @keyframes ph-bob { 50% { transform: translateY(-6px); } }
 .intro-ph-t { font-size: 28px; font-weight: 900; }
 .intro-ph-s { font-size: 15px; line-height: 1.6; color: #E8E2DA; max-width: 280px; }
-.intro-top { position: absolute; left: 0; right: 0; top: 0; z-index: 4; display: flex; align-items: center; gap: 8px; height: calc(56px + var(--sat)); padding: var(--sat) 12px 0 16px; background: linear-gradient(180deg, rgba(0, 0, 0, .45) 0%, rgba(0, 0, 0, 0) 100%); }
+/* 顶部一层渐暗：盖住标题栏和进度条，白字在浅色画面上也看得清 */
+.intro::before { content: ''; position: absolute; left: 0; right: 0; top: 0; z-index: 2; height: calc(112px + var(--sat)); background: linear-gradient(180deg, rgba(0, 0, 0, .5) 0%, rgba(0, 0, 0, .3) 60%, rgba(0, 0, 0, 0) 100%); pointer-events: none; }
+.intro-top { position: absolute; left: 0; right: 0; top: 0; z-index: 4; display: flex; align-items: center; gap: 8px; height: calc(56px + var(--sat)); padding: var(--sat) 12px 0 16px; }
 .intro-brand { font-size: 20px; font-weight: 900; }
 .intro-brand em { font-style: normal; color: var(--yellow); }
 .intro .icon-btn.dark { background: rgba(255, 255, 255, .18); }
@@ -725,20 +728,14 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 #intro-sound.is-on .i-off { display: none; }
 .intro-skip { height: 44px; padding: 0 18px; border-radius: 22px; background: rgba(255, 255, 255, .18); color: #fff; font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; }
 #intro-play { left: 50%; top: 50%; margin: -36px 0 0 -36px; z-index: 3; }
-.intro-bottom { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; display: grid; gap: 12px; padding: 48px 16px calc(16px + var(--sab)); background: linear-gradient(0deg, rgba(0, 0, 0, .62) 0%, rgba(0, 0, 0, 0) 100%); }
-.intro-prog { display: flex; align-items: center; gap: 10px; }
+.intro-bottom { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; display: grid; gap: 8px; padding: 24px 16px calc(12px + var(--sab)); background: linear-gradient(0deg, rgba(0, 0, 0, .66) 0%, rgba(0, 0, 0, .4) 45%, rgba(0, 0, 0, 0) 100%); }
+.intro-prog { position: absolute; left: 16px; right: 16px; top: calc(52px + var(--sat)); z-index: 4; display: flex; align-items: center; gap: 10px; pointer-events: none; }
 .intro-rail { position: relative; flex: 1 1 auto; height: 4px; border-radius: 4px; background: rgba(255, 255, 255, .28); overflow: hidden; }
 .intro-rail i { position: absolute; inset: 0; background: #fff; transform-origin: 0 50%; transform: scaleX(0); }
 .strip-txt { flex: 1 1 auto; min-width: 0; display: grid; gap: 1px; }
 .strip-txt b { font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .strip-txt small { font-size: 12px; color: var(--ticket-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.intro-note { font-size: 12px; text-align: center; color: rgba(255, 255, 255, .78); }
-/* 有真视频时：上下两块——视频完整显示在上面（不裁切，字幕不被盖住），进度条、券条单独一块在下面 */
-.intro.is-video { display: grid; grid-template-rows: minmax(0, 1fr) auto; }
-.intro.is-video video { position: relative; z-index: 1; inset: auto; grid-row: 1; grid-column: 1; width: 100%; height: 100%; min-height: 0; object-fit: contain; background: transparent; }
-.intro.is-video .intro-bottom { position: relative; z-index: 3; grid-row: 2; padding-top: 12px; background: var(--dark); }
-.intro-amb { display: none; }
-.intro.is-video .intro-amb { display: block; grid-row: 1; grid-column: 1; width: 100%; height: 100%; -webkit-filter: blur(28px) brightness(.92); filter: blur(28px) brightness(.92); transform: scale(1.2); pointer-events: none; }
+.intro-note { font-size: 12px; text-align: center; color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .55); }
 @media (hover: hover) {
   .intro-skip:hover { background: rgba(255, 255, 255, .26); }
   .coupon-bar:hover, .m-coupon:hover, .cf-coupon:hover { filter: brightness(1.03); }
