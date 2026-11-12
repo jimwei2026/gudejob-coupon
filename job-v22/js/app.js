@@ -633,7 +633,7 @@
     nav.push('coupon', function () { closePage('pg-coupon'); });
   }
 
-  // ---------- 开场主题视频 ----------
+  // ---------- 开场互动视频 ----------
   function showIntro(first) {
     if (!first) nav.push('intro', function () { GJ.intro.close(); });
     GJ.intro.show({
@@ -643,8 +643,24 @@
         if (first) { syncInert(); setTimeout(syncInert, 300); if (then) then(); }
         else nav.dismissed('intro', then);
       },
+      // 「还是不看」：开场已经换成道别画面，这里离开 H5
+      onLeave: function () { S.markIntroSeen(); leaveH5(); },
     });
     syncInert();
+  }
+
+  // 开场选了「还是不看」：直接离开 H5，不进人才主页（刚给过「直接领券带回家」，不再弹领券提醒）。
+  // App 提供 SowiiBridge.close() 时由 App 关掉页面；浏览器里退回打开 H5 之前的页面；
+  // 都做不到（直接打开的网页、App 还没接 close）就停在开场的道别画面（intro.js），只有「重新看看」
+  function leaveH5() {
+    S.markLeaveShown();
+    var b = window.SowiiBridge;
+    if (b && typeof b.close === 'function') {
+      try { b.close(); return; } catch (e) { /* 走下面的退回上一页 */ }
+    }
+    var st = history.state, armed = st && typeof st.gjd === 'number';
+    var steps = nav.depth() + (armed ? 2 : 1);
+    try { history.go(-steps); } catch (e) { /* 退不回去就停在道别画面 */ }
   }
 
   // ---------- 晒晒我招到的秃秃（拉新） ----------

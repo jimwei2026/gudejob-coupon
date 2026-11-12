@@ -37,12 +37,12 @@ GJ.config = {
   // clips.open 留空时放占位画面，placeholderSeconds 秒后自动进主页；no / yes 留空时跳过那一段。
   intro: {
     enabled: true,
-    // 开场版本号：换了开场视频就加 1，看过旧开场的人会自动再播一次新的（只播一次）。2 = v18 互动开场
-    rev: 2,
+    // 开场版本号：换了开场视频就加 1，看过旧开场的人会自动再播一次新的（只播一次）。2 = v18 互动开场，3 = v22 换成新场景的三段视频
+    rev: 3,
     clips: {
-      open: { video: 'assets/intro/open.mp4', poster: 'assets/intro/open-poster.jpg' },   // 老板在吗？菇来面试啦！这是菇的简历，请过目！（8.7 秒）
-      no: { video: 'assets/intro/no.mp4', poster: 'assets/intro/no-poster.jpg' },         // 老板再考虑一下嘛？菇吃得很少的！（5.1 秒）
-      yes: { video: 'assets/intro/yes.mp4', poster: 'assets/intro/yes-poster.jpg' },      // 谢谢老板！接下来菇会好好面试的！（5.1 秒）
+      open: { video: 'assets/intro/open.mp4', poster: 'assets/intro/open-poster.jpg' },   // 这是菇的简历，请过目！老板要看看菇的简历么？（8.5 秒，v22 新场景）
+      no: { video: 'assets/intro/no.mp4', poster: 'assets/intro/no-poster.jpg' },         // 老板再考虑一下嘛？菇吃得很少的！（6.0 秒，v22 新场景）
+      yes: { video: 'assets/intro/yes.mp4', poster: 'assets/intro/yes-poster.jpg' },      // 谢谢老板！接下来菇会好好面试的！（5.1 秒，v22 新场景）
     },
     // q：选项上方的问题（视频最后一句已经在问，就留空不重复）；label：读屏软件读的问题
     ask1: { q: '', label: '要看秃秃的简历吗？', yes: '看简历', no: '不看' },

@@ -223,8 +223,13 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .bar-title { flex: 1; text-align: center; font-size: 16px; font-weight: 700; }
 
 /* 在线简历：样式在文件后面「老板版」一节 */
-.d-foot { flex: 0 0 auto; display: flex; align-items: center; gap: 12px; padding: 8px 16px calc(12px + var(--sab)); border-top: 1px solid var(--line); background: var(--card); }
-.d-foot .btn { flex: 1; }
+.d-foot { flex: 0 0 auto; display: flex; align-items: center; gap: 10px; padding: 8px 16px calc(12px + var(--sab)); border-top: 1px solid var(--line); background: var(--card); }
+.d-foot .btn { flex: 1; min-width: 0; padding: 0 12px; white-space: nowrap; }
+/* v21 简历页的「领券」放在底栏最右边（以前在右上角）：黄色胶囊 + 红色「券」，和主按钮一样高 */
+.d-coupon { height: 48px; padding: 0 16px 0 10px; border-radius: 999px; background: var(--yellow); color: var(--ink); font-size: 16px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 6px; flex: 0 0 auto; white-space: nowrap; transition: transform .15s var(--ease-out); }
+.d-coupon i { font-style: normal; width: 24px; height: 24px; border-radius: 7px; background: var(--red); color: #fff; font-size: 13px; display: grid; place-items: center; flex: 0 0 auto; }
+.d-coupon:active { transform: scale(.97); }
+.bar-gap { width: 44px; flex: 0 0 auto; }   /* 右边没有按钮时占位，让标题保持居中 */
 .fav-col { width: 56px; min-height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; flex: 0 0 auto; }
 .fav-col svg, .fav-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
 .fav-col[aria-pressed="true"] svg, .fav-btn[aria-pressed="true"] svg { fill: var(--yellow); stroke: var(--ink); }
@@ -707,17 +712,17 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .sc-h1 { font-size: 20px; font-weight: 800; }
 .sc-h2 { font-size: 13px; color: #A8A097; }
 
-/* 开场主题视频 */
+/* 开场互动视频 */
 .intro { position: absolute; inset: 0; z-index: 75; background: var(--dark); color: #fff; opacity: 0; transition: opacity .25s; overflow: hidden; touch-action: manipulation; }
 .intro.is-open { opacity: 1; }
-/* v17：视频铺满全屏。屏幕比 9:16 宽时上下要裁掉一点，只裁上面（上面多是空背景），保住下方字幕不被券条盖住 */
-.intro video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; background: #000; display: block; }
+/* 视频铺满全屏。v18 的三段视频字幕在画面上方：屏幕比 9:16 宽时上下要裁掉一点，只裁下面，保住字幕 */
+.intro video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0%; background: #000; display: block; }
 .intro-ph { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 14px; padding: 0 32px 120px; text-align: center; }
 .intro-ph img { width: 150px; height: auto; animation: ph-bob 2.4s ease-in-out infinite; }
 @keyframes ph-bob { 50% { transform: translateY(-6px); } }
 .intro-ph-t { font-size: 28px; font-weight: 900; }
 .intro-ph-s { font-size: 15px; line-height: 1.6; color: #E8E2DA; max-width: 280px; }
-/* 顶部一层渐暗：盖住标题栏和进度条，白字在浅色画面上也看得清 */
+/* 顶部一层渐暗：标题栏和视频字幕的白字在浅色画面上也看得清 */
 .intro::before { content: ''; position: absolute; left: 0; right: 0; top: 0; z-index: 2; height: calc(112px + var(--sat)); background: linear-gradient(180deg, rgba(0, 0, 0, .5) 0%, rgba(0, 0, 0, .3) 60%, rgba(0, 0, 0, 0) 100%); pointer-events: none; }
 .intro-top { position: absolute; left: 0; right: 0; top: 0; z-index: 4; display: flex; align-items: center; gap: 8px; height: calc(56px + var(--sat)); padding: var(--sat) 12px 0 16px; }
 .intro-brand { font-size: 20px; font-weight: 900; }
@@ -726,19 +731,43 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 #intro-sound .i-on { display: none; }
 #intro-sound.is-on .i-on { display: block; }
 #intro-sound.is-on .i-off { display: none; }
+/* v20 默认带声音；浏览器不让带声音自动播放时（iPhone Safari）改成静音播，按钮带字「开声音」提示一下 */
+#intro-sound .intro-sound-t { display: none; }
+#intro-sound.is-hint { width: auto; padding: 0 14px 0 11px; border-radius: 22px; display: inline-flex; align-items: center; gap: 4px; }
+#intro-sound.is-hint .intro-sound-t { display: inline; font-size: 14px; font-weight: 700; }
 .intro-skip { height: 44px; padding: 0 18px; border-radius: 22px; background: rgba(255, 255, 255, .18); color: #fff; font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; }
 #intro-play { left: 50%; top: 50%; margin: -36px 0 0 -36px; z-index: 3; }
-.intro-bottom { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; display: grid; gap: 8px; padding: 24px 16px calc(12px + var(--sab)); background: linear-gradient(0deg, rgba(0, 0, 0, .66) 0%, rgba(0, 0, 0, .4) 45%, rgba(0, 0, 0, 0) 100%); }
-.intro-prog { position: absolute; left: 16px; right: 16px; top: calc(52px + var(--sat)); z-index: 4; display: flex; align-items: center; gap: 10px; pointer-events: none; }
+/* 底部：进度条 + 券条压在视频上（v18 字幕在上方，进度条放回底部） */
+.intro-bottom { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; display: grid; gap: 12px; padding: 40px 16px calc(16px + var(--sab)); background: linear-gradient(0deg, rgba(0, 0, 0, .6) 0%, rgba(0, 0, 0, 0) 100%); }
+.intro-prog { display: flex; align-items: center; gap: 10px; }
 .intro-rail { position: relative; flex: 1 1 auto; height: 4px; border-radius: 4px; background: rgba(255, 255, 255, .28); overflow: hidden; }
 .intro-rail i { position: absolute; inset: 0; background: #fff; transform-origin: 0 50%; transform: scaleX(0); }
-.strip-txt { flex: 1 1 auto; min-width: 0; display: grid; gap: 1px; }
-.strip-txt b { font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.strip-txt small { font-size: 12px; color: var(--ticket-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.intro-note { font-size: 12px; text-align: center; color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .55); }
+/* 选择：视频停在最后一帧，下半部分压暗一点（上方视频里的问话保持清楚）；选项在底部、券条上面
+   （v20 试过挪到画面中间，用户觉得奇怪，v21 放回底部） */
+.intro::after { content: ''; position: absolute; inset: 0; z-index: 2; background: linear-gradient(180deg, rgba(0, 0, 0, 0) 38%, rgba(0, 0, 0, .55) 100%); opacity: 0; transition: opacity .3s; pointer-events: none; }
+.intro.is-asking::after, .intro.is-bye::after { opacity: 1; }
+.intro.is-asking .intro-prog { visibility: hidden; }
+.intro.ask-2 #intro-strip { display: none; }           /* 第二次问：券条变成选项「直接领券带回家」，不重复放 */
+.intro-ask { position: absolute; left: 24px; right: 24px; bottom: calc(100px + var(--sab)); z-index: 5; display: grid; gap: 12px; animation: ask-in .32s var(--ease-out) both; }
+.intro.ask-2 .intro-ask { bottom: calc(40px + var(--sab)); }
+/* v21「还是不看」页面关不掉时的道别画面：和第二次问同一个位置；没有跳过（跳过会进人才主页）、没有券条，只有「重新看看」 */
+.intro-bye { position: absolute; left: 24px; right: 24px; bottom: calc(40px + var(--sab)); z-index: 5; display: grid; gap: 12px; text-align: center; animation: ask-in .32s var(--ease-out) both; }
+.intro-bye-t { font-size: 20px; font-weight: 800; text-shadow: 0 2px 8px rgba(0, 0, 0, .5); }
+.intro-bye-s { margin-top: 4px; font-size: 14px; color: #E8E2DA; text-shadow: 0 1px 6px rgba(0, 0, 0, .5); }
+.intro-bye .btn { height: 52px; margin-top: 8px; }
+.intro.is-bye .intro-bottom, .intro.is-bye #intro-sound, .intro.is-bye #intro-skip { visibility: hidden; }
+@keyframes ask-in { from { opacity: 0; transform: translateY(16px); } }
+.intro-ask-q { font-size: 20px; font-weight: 800; text-align: center; margin-bottom: 4px; text-shadow: 0 2px 8px rgba(0, 0, 0, .5); }
+.intro-ask .btn { height: 52px; }
+.intro-ask-no { background: rgba(255, 255, 255, .2); color: #fff; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.intro-ask-coupon { height: 52px; width: 100%; border-radius: 999px; background: var(--yellow); color: var(--ink); font-size: 16px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 24px rgba(0, 0, 0, .3); transition: transform .15s var(--ease-out); }
+.intro-ask-coupon b { font-size: 16px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.intro-ask-coupon:active { transform: scale(.97); }
+@media (prefers-reduced-motion: reduce) { .intro-ask, .intro-bye { animation: none; } .intro::after { transition: none; } }
 @media (hover: hover) {
   .intro-skip:hover { background: rgba(255, 255, 255, .26); }
-  .coupon-bar:hover, .m-coupon:hover, .cf-coupon:hover { filter: brightness(1.03); }
+  .coupon-bar:hover, .m-coupon:hover, .cf-coupon:hover, .intro-ask-coupon:hover, .d-coupon:hover { filter: brightness(1.03); }
+  .intro-ask-no:hover { background: rgba(255, 255, 255, .28); }
   .cj-link:hover { color: var(--ink); }
 }
 
