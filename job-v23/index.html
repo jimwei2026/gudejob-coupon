@@ -108,7 +108,7 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
       <p class="bar-title">在线简历</p>
-      <button class="coupon-pill" type="button" data-coupon aria-label="领券"><span><i aria-hidden="true">券</i>领券</span></button>
+      <span class="bar-gap" aria-hidden="true"></span>
     </header>
     <div class="scroll rs-body">
       <section class="rs-top">
@@ -154,6 +154,8 @@
         <span>感兴趣</span>
       </button>
       <button class="btn" id="r-chat" type="button">立即沟通</button>
+      <!-- v21 领券从右上角挪到底栏右侧：拇指够得着，和聊天页底栏的领券在同一个位置 -->
+      <button class="d-coupon" id="r-coupon" type="button" data-coupon><i aria-hidden="true">券</i>领券</button>
     </footer>
   </section>
 
@@ -196,7 +198,7 @@
         <div class="l-head">
           <span class="l-photo"><img id="o-fig" alt=""></span>
           <div>
-            <h1>老板，我来上班啦！</h1>
+            <h1>老板，<span class="nw">我来上班啦！</span></h1>
             <p>「<b id="o-role"></b>」已接受你的 Offer</p>
           </div>
         </div>
@@ -355,7 +357,7 @@
   <!-- ========== 跳转 ========== -->
   <div class="jump" id="jump" hidden role="dialog" aria-modal="true" aria-labelledby="jump-title">
     <div class="jump-pocket"><img id="jump-fig" alt=""></div>
-    <p class="jump-title" id="jump-title">券已到手</p>
+    <p class="jump-title" id="jump-title" tabindex="-1">券已到手</p>
     <p class="jump-sub" id="jump-sub"></p>
     <div class="jump-bar" aria-hidden="true"><i></i></div>
     <div class="jump-fallback" id="jump-fallback" hidden>
@@ -387,18 +389,24 @@
       <button class="icon-btn dark" id="intro-sound" type="button" aria-label="打开声音" aria-pressed="false" hidden>
         <svg class="i-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.2L12 5.6v12.8l-4.8-3.9H4z" fill="currentColor"/><path d="M16 9.5l5 5m0-5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         <svg class="i-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.2L12 5.6v12.8l-4.8-3.9H4z" fill="currentColor"/><path d="M15.5 8.6a4.6 4.6 0 0 1 0 6.8M18 6.2a8 8 0 0 1 0 11.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span class="intro-sound-t" aria-hidden="true">开声音</span>
       </button>
       <button class="intro-skip" id="intro-skip" type="button">跳过</button>
     </div>
     <button class="pv-play" id="intro-play" type="button" aria-label="播放" hidden>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>
     </button>
-    <!-- 选择：视频停在最后一帧，问老板看不看简历（字幕在画面上方，选项放下半部分不挡字幕） -->
+    <!-- 选择：视频停在最后一帧，问老板看不看简历（字幕在画面上方，选项放在底部不挡字幕） -->
     <div class="intro-ask" id="intro-ask" role="group" aria-label="要看秃秃的简历吗？" hidden>
       <p class="intro-ask-q" id="intro-ask-q">要看秃秃的简历吗？</p>
       <button class="btn light wide" id="intro-yes" type="button">看简历</button>
       <button class="intro-ask-coupon" id="intro-coupon" type="button" hidden><span class="pv-strip-tag" aria-hidden="true">券</span><span id="intro-coupon-t">直接领券带回家</span><b id="intro-coupon-amt">¥5</b></button>
       <button class="btn wide intro-ask-no" id="intro-no" type="button">不看</button>
+    </div>
+    <!-- v21「还是不看」：页面关不掉时停在这里道别，不进人才主页 -->
+    <div class="intro-bye" id="intro-bye" hidden>
+      <div role="status"><p class="intro-bye-t" id="intro-bye-t"></p><p class="intro-bye-s" id="intro-bye-s"></p></div>
+      <button class="btn light wide" id="intro-again" type="button">重新看看</button>
     </div>
     <div class="intro-bottom">
       <div class="intro-prog" aria-hidden="true">
@@ -406,11 +414,7 @@
         <span class="intro-rail"><i id="intro-fill"></i></span>
         <span class="pv-time" id="intro-dur">0:00</span>
       </div>
-      <button class="pv-strip" id="intro-strip" type="button">
-        <span class="pv-strip-tag">券</span>
-        <span class="strip-txt"><b id="intro-strip-name">接 TA 回家券 ¥5</b><small id="intro-strip-sub">满 69 可用 · 不用先玩也能领</small></span>
-        <span class="pv-strip-go">领券</span>
-      </button>
+      <button class="intro-ask-coupon" id="intro-strip" type="button" aria-label="直接领券带回家，¥5，满 69 可用"><span class="pv-strip-tag" aria-hidden="true">券</span><span id="intro-strip-t">直接领券带回家</span><b id="intro-strip-amt">¥5</b></button>
     </div>
   </div>
 

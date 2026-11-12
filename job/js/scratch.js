@@ -121,8 +121,9 @@
 
   Scratch.prototype.progress = function () { return this.marked / (COLS * ROWS); };
 
+  // v23：按下时量一次画布位置，划动时用缓存的，不在每个采样点上量（低端安卓上会连续强制排版）
   Scratch.prototype._local = function (e) {
-    var r = this.canvas.getBoundingClientRect();
+    var r = this.rect || this.canvas.getBoundingClientRect();
     return { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height };
   };
 
@@ -135,6 +136,7 @@
       GJ.audio.unlock();
       if (!self.touched) { self.touched = true; if (self.opts.onFirstTouch) self.opts.onFirstTouch(); }
       try { cv.setPointerCapture(e.pointerId); } catch (err) { /* 忽略 */ }
+      self.rect = cv.getBoundingClientRect();
       var p = self._local(e);
       self.pointers[e.pointerId] = { x: p.x, y: p.y, t: performance.now() };
       self._add([p.x, p.y, p.x, p.y]);

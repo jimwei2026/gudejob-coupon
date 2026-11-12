@@ -183,7 +183,8 @@
 
   // 选中角色后就开始加载
   function prepare(ch) {
-    if (current && current.id === ch.id && v.getAttribute('src')) return;
+    // v23：预载时出过错的，打开时重新加载
+    if (current && current.id === ch.id && v.getAttribute('src') && !v.error) return;
     current = ch;
     unlocked = false;
     v.setAttribute('src', 'assets/pv/' + ch.id + '.mp4');

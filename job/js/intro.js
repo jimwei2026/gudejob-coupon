@@ -16,7 +16,7 @@
  */
 (function () {
   var C = GJ.config;
-  var el = {}, open = false, opts = {}, phTimer = 0, phStart = 0, phRaf = 0, primeTimer = 0;
+  var el = {}, open = false, opts = {}, phTimer = 0, phStart = 0, phRaf = 0, primed = false;
   var vids = {}, cur = '', asking = 0, bye = false, sound = true, autoMuted = false;
 
   function $(id) { return document.getElementById(id); }
@@ -61,7 +61,8 @@
       var v = vids[k];
       v.setAttribute('playsinline', '');
       v.setAttribute('webkit-playsinline', '');
-      v.addEventListener('timeupdate', function () { if (k === cur) paintVideo(); });
+      v.addEventListener('timeupdate', function () { if (k === cur) paintVideo(); if (k === 'open') maybePrime(); });
+      if (k === 'open') v.addEventListener('progress', function () { maybePrime(); });
       v.addEventListener('loadedmetadata', function () { if (k === cur) paintVideo(); });
       v.addEventListener('playing', function () { if (k === cur) el.play.hidden = true; });
       v.addEventListener('ended', function () { if (open && k === cur && !asking && !bye) next(k); });
@@ -148,7 +149,17 @@
     });
   }
 
-  // 开头放起来之后，悄悄把后面两段先加载上（各 1MB 左右），选完马上能放
+  // 开头下载完之后，悄悄把后面两段先加载上（各 1MB 左右），选完马上能放。
+  // v23：以前开头放 1.2 秒就同时下后两段，弱网（4 Mbps）下开头会卡两三次；现在等开头整段下完
+  // （或者放到最后 3 秒、或者已经在问了）再下，开头独占网速
+  function openBuffered(v) {
+    try { var b = v.buffered; return v.duration > 0 && b.length > 0 && b.end(b.length - 1) >= v.duration - 0.3; } catch (e) { return false; }
+  }
+  function maybePrime(force) {
+    if (!open || primed) return;
+    var v = vids.open;
+    if (force || openBuffered(v) || (v.duration > 0 && v.currentTime >= v.duration - 3)) { primed = true; prime(); }
+  }
   function prime() {
     ['no', 'yes'].forEach(function (k) {
       var c = clip(k), v = vids[k];
@@ -175,6 +186,9 @@
     if (v.getAttribute('src') !== c.video) {
       if (c.poster) v.poster = c.poster;
       v.src = c.video;
+    } else if (v.error) {
+      // v23：预载时出过错（弱网断了一下），放之前重新加载一次
+      try { v.load(); } catch (e) { /* 忽略 */ }
     }
     v.hidden = false;
     v.muted = !sound;
@@ -196,6 +210,7 @@
     var v = vid();
     if (v && !v.paused) v.pause();
     asking = n;
+    maybePrime(true);
     el.play.hidden = true;
     // 视频里已经问了（开头最后一句「老板要看看菇的简历么？」）就不重复写，只给读屏软件读 label
     el.q.textContent = a.q || '';
@@ -258,6 +273,7 @@
   function stopVideos() { Object.keys(vids).forEach(function (k) { vids[k].pause(); }); }
 
   function usePlaceholder() {
+    primed = true;   // 放占位画面就没有视频要下，别挡着卡面预载
     stopPlaceholder();
     stopVideos();
     clearAsk();
@@ -293,9 +309,9 @@
     if (hasVideo()) {
       el.ph.hidden = true;
       el.sound.hidden = false;
+      primed = false;
       playClip('open');
-      clearTimeout(primeTimer);
-      primeTimer = setTimeout(function () { if (open) prime(); }, 1200);
+      maybePrime();
     } else {
       usePlaceholder();
     }
@@ -305,7 +321,6 @@
   function hide() {
     open = false;
     stopPlaceholder();
-    clearTimeout(primeTimer);
     stopVideos();
     el.root.classList.remove('is-open');
     setTimeout(function () { if (!open) { el.root.hidden = true; clearAsk(); clearBye(); } }, 260);
@@ -323,5 +338,7 @@
     // 直接关掉，不触发回调（从浏览器返回时用）
     close: function () { if (open) hide(); },
     isOpen: function () { return open; },
+    // v23：开头还在下载（后两段还没开始预载）时为 true，卡面预载等它下完再开始
+    loading: function () { return open && !primed; },
   };
 })();

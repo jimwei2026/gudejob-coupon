@@ -71,14 +71,21 @@
 
   // ---------- 导航（配合浏览器的返回键 / 侧滑返回） ----------
   var nav = (function () {
-    var stack = [], after = null, armed = false;
+    var stack = [], after = null, armed = false, going = false, goingT = 0;
     function run() { if (after) { var f = after; after = null; f(); } }
     function push(type, close) {
       stack.push({ type: type, close: close, silent: false });
       try { history.pushState({ gjd: stack.length }, ''); } catch (e) { /* 忽略 */ }
       syncInert();
     }
-    function back(fn) { after = fn || null; if (!stack.length) { run(); return; } history.back(); }
+    // v23：上一次退回还没生效时不再退（连点两下「收下简历」以前会把聊天页也退掉）
+    function back(fn) {
+      if (going) return;
+      after = fn || null;
+      if (!stack.length) { run(); return; }
+      going = true; clearTimeout(goingT); goingT = setTimeout(function () { going = false; }, 700);
+      history.back();
+    }
     function backTo(n, fn) {
       var k = stack.length - n;
       after = fn || null;
@@ -98,10 +105,21 @@
       armed = true;
       try { history.replaceState({ gjd: -1 }, ''); history.pushState({ gjd: 0 }, ''); } catch (e) { /* 忽略 */ }
     }
+    // v23：页面重载后（从抖音 / 天猫的网页退回来、App 里刷新），历史里还留着之前垫的几步，但图层都没了。
+    // 先退回最外层那一步，不然返回键要白按好几次
+    function adopt() {
+      var st = history.state, d = st && typeof st.gjd === 'number' ? st.gjd : null;
+      if (d === null || d < 0) return;
+      armed = true;
+      if (d > 0) { try { history.go(-d); } catch (e) { /* 忽略 */ } }
+    }
     window.addEventListener('popstate', function (e) {
       var d = e.state && typeof e.state.gjd === 'number' ? e.state.gjd : -2;
       log('popstate d=' + d + ' depth=' + stack.length);
+      going = false; clearTimeout(goingT);
       if (!$('jump').hidden) hideJump();
+      // v23：前进手势走到了已经关掉的图层那一步：退回去，和图层对齐
+      if (d > stack.length) { try { history.go(stack.length - d); } catch (e) { /* 忽略 */ } return; }
       var target = Math.max(0, d);
       while (stack.length > target) {
         var t = stack.pop();
@@ -113,7 +131,7 @@
       if (d === -1) { after = null; onExit(); return; }
       run();
     });
-    return { push: push, back: back, backTo: backTo, dismissed: dismissed, top: top, has: has, arm: arm,
+    return { push: push, back: back, backTo: backTo, dismissed: dismissed, top: top, has: has, arm: arm, adopt: adopt,
       depth: function () { return stack.length; } };
   })();
 
@@ -414,7 +432,8 @@
     refreshAll();
     if (ui.chatPos === i && nav.top() === 'chat') {
       setReplies(i, true);
-      GJ.chat.play(i, ch, GJ.chat.segOffer(), function () { setReplies(i); duDu(); });
+      // v23：放完时已经点进入职确认（那里已经嘟过一声），就不再嘟
+      GJ.chat.play(i, ch, GJ.chat.segOffer(), function () { setReplies(i); if (nav.top() === 'chat') duDu(); });
     }
   }
 
@@ -559,7 +578,11 @@
   }
 
   // ---------- 作品集（PV） ----------
-  function stripText() { return C.coupon.name + ' ¥' + C.coupon.amount + ' · ' + C.coupon.threshold; }
+  // v23：320 宽的小屏放不下门槛，只写券名和金额（门槛在领券页上）
+  function stripText() {
+    var narrow = window.matchMedia && matchMedia('(max-width: 340px)').matches;
+    return C.coupon.name + ' ¥' + C.coupon.amount + (narrow ? '' : ' · ' + C.coupon.threshold);
+  }
 
   function openPV(i) {
     var ch = chAt(i);
@@ -639,33 +662,28 @@
     GJ.intro.show({
       onClose: function (kind) {
         S.markIntroSeen();
-        if (kind === 'exit') { leaveH5(first); return; }
         var then = kind === 'coupon' ? openCoupon : null;
         if (first) { syncInert(); setTimeout(syncInert, 300); if (then) then(); }
         else nav.dismissed('intro', then);
       },
+      // 「还是不看」：开场已经换成道别画面，这里离开 H5
+      onLeave: function () { S.markIntroSeen(); leaveH5(); },
     });
     syncInert();
   }
 
-  // 开场选了「还是不看」：直接离开 H5（刚给过「直接领券带回家」，不再弹领券提醒）。
+  // 开场选了「还是不看」：直接离开 H5，不进人才主页（刚给过「直接领券带回家」，不再弹领券提醒）。
   // App 提供 SowiiBridge.close() 时由 App 关掉页面；浏览器里退回打开 H5 之前的页面；
-  // 退不了（比如直接打开的网页、App 还没接 close）就留在人才主页，提示一句
-  function leaveH5(first) {
+  // 都做不到（直接打开的网页、App 还没接 close）就停在开场的道别画面（intro.js），只有「重新看看」
+  function leaveH5() {
     S.markLeaveShown();
-    syncInert();
     var b = window.SowiiBridge;
     if (b && typeof b.close === 'function') {
-      try { b.close(); return; } catch (e) { /* 走下面的兜底 */ }
+      try { b.close(); return; } catch (e) { /* 走下面的退回上一页 */ }
     }
     var st = history.state, armed = st && typeof st.gjd === 'number';
     var steps = nav.depth() + (armed ? 2 : 1);
-    try { history.go(-steps); } catch (e) { /* 忽略 */ }
-    setTimeout(function () {
-      if (document.hidden) return;
-      if (!first) nav.dismissed('intro');
-      toast(C.intro.exitToast || '秃秃先退下啦，想看简历随时回来');
-    }, 500);
+    try { history.go(-steps); } catch (e) { /* 退不回去就停在道别画面 */ }
   }
 
   // ---------- 晒晒我招到的秃秃（拉新） ----------
@@ -773,6 +791,7 @@
     var pos = nav.top() === 'offer' ? ui.offerPos : latestHired();
     var ch = pos >= 0 ? chAt(pos) : null;
     ui.jumped = true;
+    S.markLeaveShown();   // v23：已经去领了，页面重载后也不再提醒「券还没领」
     clearJump();
     $('jump-fig').src = ch ? 'assets/figures/' + ch.id + '.png' : 'assets/tutu/wave.png';
     $('jump-sub').textContent = (ch ? ch.name : '秃秃') + '在' + CHANNEL[channel] + '门口等你';
@@ -786,6 +805,7 @@
     var bar = j.querySelector('.jump-bar i');
     bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = '';
     syncInert();
+    setTimeout(function () { if (!j.hidden) $('jump-title').focus({ preventScroll: true }); }, 60);
     // 领券确认：和刮简历同一段秃秃原声（source/刮刮乐.mp3），原速不变调
     GJ.audio.play('du', { gain: 0.9 });
     GJ.audio.buzz(20, 0);
@@ -945,11 +965,13 @@
     });
   }
 
+  var sheetAt = 0;
   function showSheet(name) {
     var el = $('sheet-' + name), scrim = $('scrim');
     hideSheets(true);
     scrim.hidden = false; el.hidden = false;
     openSheetEl = el;
+    sheetAt = Date.now();
     syncInert();
     requestAnimationFrame(function () { scrim.classList.add('is-on'); el.classList.add('is-on'); });
     var focusable = el.querySelector('button');
@@ -980,7 +1002,10 @@
 
   // 在最外层按返回、要离开页面时：还没点过领券，提醒一次（领券不用先玩，所以不管玩没玩都提醒）
   function onExit() {
-    if (ui.leaveOpen) { hideSheets(true); history.back(); return; }
+    // v23：第一次的开场还开着（它不在返回栈里）就按了返回：先收起开场，再按平常的规矩提醒 / 离开。
+    // 以前提醒层盖在还在放的视频上，点「去领券」领券页被开场挡着看不见
+    if (GJ.intro.isOpen()) { GJ.intro.close(); S.markIntroSeen(); syncInert(); setTimeout(syncInert, 300); }
+    if (ui.leaveOpen) { hideSheets(true); exitH5(); return; }
     if (C.leaveReminder && !S.leaveShown() && !ui.jumped) {
       S.markLeaveShown();
       try { history.pushState({ gjd: 0 }, ''); } catch (e) { /* 忽略 */ }
@@ -992,6 +1017,13 @@
       ui.leaveOpen = true;
       return;
     }
+    exitH5();
+  }
+
+  // v23：App 提供 SowiiBridge.close() 时由 App 关页面（H5 是 WebView 第一页时 history.back() 退不出去）
+  function exitH5() {
+    var b = window.SowiiBridge;
+    if (b && typeof b.close === 'function') { try { b.close(); return; } catch (e) { /* 走 history.back */ } }
     history.back();
   }
 
@@ -1037,8 +1069,8 @@
     $('r-pf').addEventListener('click', function () { if (ui.pos >= 0) openPV(ui.pos); });
     $('c-resume').addEventListener('click', chatToResume);
 
-    $('sc-close').addEventListener('click', function () { nav.back(); });
-    $('sc-take').addEventListener('click', function () { nav.back(); });
+    $('sc-close').addEventListener('click', function () { if (nav.top() === 'scratch') nav.back(); });
+    $('sc-take').addEventListener('click', function () { if (nav.top() === 'scratch') nav.back(); });
     $('sc-flip').addEventListener('click', function () {
       GJ.player.unlockFromGesture();
       // 卡片还没加载完时，等加载好再翻开，不会翻出空白
@@ -1081,7 +1113,8 @@
       b.addEventListener('click', function () { openSheet(b.getAttribute('data-open')); });
     });
     document.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', closeSheet); });
-    $('scrim').addEventListener('click', closeSheet);
+    // v23：双击打开弹层的按钮时，第二下（一般在 250 毫秒内）落在刚铺开的遮罩上，不算关闭
+    $('scrim').addEventListener('click', function () { if (Date.now() - sheetAt > 260) closeSheet(); });
     $('leave-go').addEventListener('click', function () { hideSheets(true); history.back(); });
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
@@ -1092,6 +1125,8 @@
 
     // 从抖音 / 天猫返回时，页面可能从缓存恢复，收起跳转层
     window.addEventListener('pageshow', function (e) { if (e.persisted) hideJump(); });
+    // v23：唤起了抖音 / 天猫 App 再切回来（页面没卸载，没有 pageshow）：收起跳转层，以前会停在「券已到手」没有按钮
+    document.addEventListener('visibilitychange', function () { if (!document.hidden && !$('jump').hidden) hideJump(); });
 
     // 防止整页被拖动、双指缩放、双击放大；可滚动的区域照常滚
     document.addEventListener('touchmove', function (e) {
@@ -1124,6 +1159,8 @@
   // 首屏稳定后，在后台一张一张地把还没面试的卡面先下载好（7 张约 1MB）。
   // 省流量模式或 2G 网络下只预载卡背，不预载卡面：进聊天时会再单独预载那一张，刮的时候也会等它加载完
   function preloadCards() {
+    // v23：开场视频的开头还在下载时先不抢网速，等它下完（弱网下开头不卡）
+    if (GJ.intro && GJ.intro.loading && GJ.intro.loading()) { setTimeout(preloadCards, 800); return; }
     var c = navigator.connection || {};
     var slow = !!c.saveData || /(^|-)2g$/.test(c.effectiveType || '');
     var queue = ['assets/cards/back.jpg'];
@@ -1149,7 +1186,18 @@
     $('pv-strip-text').textContent = stripText();
   }
 
+  // v23：按过键盘（Tab、方向键、回车、空格）才画焦点框；手指一点就不画
+  function trackInput() {
+    var root = document.documentElement;
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Tab' || e.key === 'Enter' || e.key === ' ' || /^Arrow/.test(e.key)) root.classList.add('kbd');
+    }, true);
+    document.addEventListener('pointerdown', function () { root.classList.remove('kbd'); }, true);
+  }
+
   function init() {
+    trackInput();
+    nav.adopt();
     GJ.player.init();
     GJ.intro.init();
     GJ.chat.init({

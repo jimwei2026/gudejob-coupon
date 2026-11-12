@@ -37,15 +37,20 @@ GJ.config = {
   // clips.open 留空时放占位画面，placeholderSeconds 秒后自动进主页；no / yes 留空时跳过那一段。
   intro: {
     enabled: true,
+    // 开场版本号：换了开场视频就加 1，看过旧开场的人会自动再播一次新的（只播一次）。2 = v18 互动开场，3 = v22 换成新场景的三段视频
+    rev: 3,
     clips: {
-      open: { video: 'assets/intro/open.mp4', poster: 'assets/intro/open-poster.jpg' },   // 老板在吗？菇来面试啦！这是菇的简历，请过目！（8.7 秒）
-      no: { video: 'assets/intro/no.mp4', poster: 'assets/intro/no-poster.jpg' },         // 老板再考虑一下嘛？菇吃得很少的！（5.1 秒）
-      yes: { video: 'assets/intro/yes.mp4', poster: 'assets/intro/yes-poster.jpg' },      // 谢谢老板！接下来菇会好好面试的！（5.1 秒）
+      open: { video: 'assets/intro/open.mp4', poster: 'assets/intro/open-poster.jpg' },   // 这是菇的简历，请过目！老板要看看菇的简历么？（8.5 秒，v22 新场景）
+      no: { video: 'assets/intro/no.mp4', poster: 'assets/intro/no-poster.jpg' },         // 老板再考虑一下嘛？菇吃得很少的！（6.0 秒，v22 新场景）
+      yes: { video: 'assets/intro/yes.mp4', poster: 'assets/intro/yes-poster.jpg' },      // 谢谢老板！接下来菇会好好面试的！（5.1 秒，v22 新场景）
     },
     // q：选项上方的问题（视频最后一句已经在问，就留空不重复）；label：读屏软件读的问题
     ask1: { q: '', label: '要看秃秃的简历吗？', yes: '看简历', no: '不看' },
     ask2: { q: '真的不看吗？', yes: '好吧，看看简历', coupon: '直接领券带回家', no: '还是不看' },
-    exitToast: '秃秃先退下啦，想看简历随时回来',   // 选了「还是不看」但页面关不掉时（浏览器直接打开）的提示
+    stripText: '直接领券带回家',   // v20：视频下方常驻券条只写一行（券 + 这句 + 金额），门槛「满 69 可用」给读屏软件读，领券页上也有
+    // v21「还是不看」＝离开 H5，不进人才主页。App 关掉页面 / 浏览器退回上一页；都做不到时（直接打开的网页、App 还没接 close）
+    // 停在开场的道别画面：秃秃最后一帧 + 这两句 + 「重新看看」（误触了可以从头再来）
+    bye: { t: '秃秃先退下啦', s: '想看简历随时回来', again: '重新看看' },
     placeholderSeconds: 6,
   },
 

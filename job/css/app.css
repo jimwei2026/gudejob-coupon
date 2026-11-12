@@ -51,7 +51,11 @@ img { -webkit-user-drag: none; user-select: none; max-width: 100%; }
 p, h1, h2, h3, ol, ul, dl, dd { margin: 0; }
 hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 [hidden] { display: none !important; }
-:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+/* v23：焦点框只在用过键盘之后画（html.kbd，app.js 里切换）。手机上程序把焦点挪到「跳过」「看简历」时不画，
+   以前安卓 WebView 第一次打开会在「跳过」外面画一圈黑框 */
+:focus-visible { outline: none; }
+.kbd :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.kbd .intro :focus-visible, .kbd .scratch-ov :focus-visible, .kbd .player :focus-visible { outline-color: #fff; }
 
 /* 页面外壳：手机上铺满，PC 上居中一列手机宽度 */
 .app { position: relative; height: 100%; max-width: var(--col); margin: 0 auto; background: var(--bg); overflow: hidden; }
@@ -136,7 +140,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .job { position: relative; }
 /* 整卡的透明点击层（进职位详情） */
 .job-hit { position: absolute; inset: 0; z-index: 1; border-radius: 12px; }
-.job-hit:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.kbd .job-hit:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .full-banner { display: flex; align-items: center; gap: 12px; background: var(--card); border-radius: 12px; padding: 12px 12px 12px 8px; box-shadow: inset 0 0 0 2px var(--ink); }
 .full-banner img { width: 48px; height: 48px; object-fit: contain; flex: 0 0 auto; }
 .full-banner div { flex: 1; display: grid; min-width: 0; }
@@ -421,7 +425,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .meter { position: relative; display: block; width: 200px; height: 6px; border-radius: 3px; background: #3A3530; overflow: hidden; }
 .meter i { display: block; height: 100%; width: 100%; background: var(--yellow); transform-origin: 0 50%; transform: scaleX(0); transition: transform .15s; }
 .meter em { position: absolute; left: 70%; top: 0; width: 2px; height: 100%; background: #E8E2DA; }
-.sc-meter b { font-size: 14px; min-width: 64px; text-align: left; font-variant-numeric: tabular-nums; }
+.sc-meter b { font-size: 14px; min-width: 64px; white-space: nowrap; text-align: left; font-variant-numeric: tabular-nums; }
 .sc-hint { font-size: 13px; color: #A8A097; }
 .sc-done { animation: pop-in .4s var(--ease-out) both; }
 .sc-name { font-size: 20px; font-weight: 800; }
@@ -501,7 +505,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .pv-play { position: absolute; z-index: 2; width: 72px; height: 72px; border-radius: 50%; background: rgba(255, 255, 255, .9); color: var(--ink); display: grid; place-items: center; }
 .pv-play svg { width: 30px; height: 30px; margin-left: 4px; }
 .pv-unmute { position: absolute; z-index: 2; top: calc(68px + var(--sat)); right: 12px; height: 36px; padding: 0 14px; border-radius: 999px; background: #fff; color: var(--ink); font-size: 13px; font-weight: 700; box-shadow: 0 4px 12px rgba(0, 0, 0, .3); }
-.pv-bottom { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; display: grid; gap: 12px; padding: 56px 16px calc(16px + var(--sab)); background: linear-gradient(0deg, rgba(0, 0, 0, .62) 0%, rgba(0, 0, 0, .35) 55%, rgba(0, 0, 0, 0) 100%); pointer-events: none; }
+.pv-bottom { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; display: grid; gap: 12px; padding: 56px 16px calc(16px + var(--sab)); grid-template-columns: minmax(0, 1fr); background: linear-gradient(0deg, rgba(0, 0, 0, .62) 0%, rgba(0, 0, 0, .35) 55%, rgba(0, 0, 0, 0) 100%); pointer-events: none; }
 .pv-bottom > * { pointer-events: auto; }
 /* 进度条：整条 44px 高都能按住拖，看得见的轨道只有 4px，拖动时变粗、圆点放大 */
 .pv-seek { display: flex; align-items: center; gap: 10px; }
@@ -513,8 +517,8 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .pv-buf { background: rgba(255, 255, 255, .3); }
 .pv-fill { background: #fff; }
 .pv-knob { position: absolute; top: 50%; left: 0; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .45); pointer-events: none; transition: transform .15s; }
-.pv-track:focus-visible .pv-rail { box-shadow: 0 0 0 2px var(--yellow); }
-.pv-track:focus-visible .pv-knob { box-shadow: 0 0 0 3px var(--yellow); }
+.kbd .pv-track:focus-visible .pv-rail { box-shadow: 0 0 0 2px var(--yellow); }
+.kbd .pv-track:focus-visible .pv-knob { box-shadow: 0 0 0 3px var(--yellow); }
 .player.is-seeking .pv-rail { height: 6px; }
 .player.is-seeking .pv-knob { transform: scale(1.35); }
 .player.is-error .pv-seek { visibility: hidden; }
@@ -580,6 +584,9 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 .cb-txt { flex: 1 1 auto; min-width: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cb-txt b { font-weight: 800; }
 .cb-txt span { color: var(--ticket-ink); }
+/* v23：320 宽的小屏放不下门槛，券条只写「接 TA 回家券 ¥5」，不显示半截「满 69…」（门槛在读屏文字和领券页上都有） */
+@media (max-width: 340px) { #cb-sub { display: none; } }
+.nw { white-space: nowrap; }
 .cb-go { height: 44px; padding: 0 18px; border-radius: 22px; background: var(--ink); color: #fff; font-size: 14px; font-weight: 800; display: inline-flex; align-items: center; flex: 0 0 auto; }
 
 /* 二级页面右上角的「领券」：可点区域 44px，看得见的胶囊 36px */
@@ -814,3 +821,6 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
   .tab:hover, .sort-tab:hover { color: var(--ink); }
   .m-card:hover, .m-video:hover .mv-pic, .m-offer:hover { filter: brightness(1.03); }
 }
+
+/* v23：跳转层出来时焦点挪到标题上（读屏会读「券已到手」），标题本身不画框 */
+#jump-title:focus { outline: none; }

@@ -33,7 +33,8 @@
       master.connect(ctx.destination);
       decodeAll();
     }
-    if (ctx.state === 'suspended') ctx.resume().catch(function () {});
+    // v23：iOS 切到后台再回来，状态可能是 interrupted 而不是 suspended，只要没在跑就恢复
+    if (ctx.state !== 'running') ctx.resume().catch(function () {});
   }
 
   function play(name, opts) {
